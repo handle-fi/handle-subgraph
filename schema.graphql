@@ -1,7 +1,7 @@
 type Vault @entity {
-    owner: ID!;
-    fxToken: BigInt!;
-    debt: BigInt!;
-    collateralAsEther: BigInt!;
-    collateralRatio: BigDecimal!;
+    id: ID!
+    fxToken: BigInt!
+    debt: BigInt!
+    collateralAsEther: BigInt!
+    collateralRatio: BigDecimal!
 }
