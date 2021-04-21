@@ -1,10 +1,8 @@
 ﻿import {
   BigInt,
-  BigDecimal,
   ByteArray,
   Address,
   crypto,
-  ens,
 } from '@graphprotocol/graph-ts';
 import {
   UpdateCollateral as UpdateCollateralEvent,
@@ -14,12 +12,12 @@ import {
 import { Vault } from "../types/schema";
 import { Comptroller } from "../types/Treasury/Comptroller";
 import { VaultLibrary } from "../types/Treasury/VaultLibrary";
-import {concat, bigIntToByteArray} from "../utils";
+import {concat} from "../utils";
 
 const getVaultId = (account: Address, fxToken: Address): string => (
   crypto.keccak256(concat(
-    ByteArray.fromI32(account.toI32()),
-    ByteArray.fromI32(fxToken.toI32())
+    ByteArray.fromHexString(account.toHex()),
+    ByteArray.fromHexString(fxToken.toHex())
   )).toHex()
 );
 
@@ -51,7 +49,7 @@ const updateVault = (
   vault.save();
 };
 
-export const handleDebtUpdate = (event: UpdateDebtEvent): void => {
+export function handleDebtUpdate (event: UpdateDebtEvent): void {
   const account = event.params.account;
   const fxToken = event.params.fxToken;
   const vaultId = getVaultId(account, fxToken);
@@ -61,9 +59,9 @@ export const handleDebtUpdate = (event: UpdateDebtEvent): void => {
     fxToken
   );
   updateVault(vault as Vault, event.address, account, fxToken);
-};
+}
 
-export const handleCollateralUpdate = (event: UpdateCollateralEvent): void => {
+export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   const account = event.params.account;
   const fxToken = event.params.fxToken;
   const vaultId = getVaultId(account, fxToken);
@@ -73,4 +71,4 @@ export const handleCollateralUpdate = (event: UpdateCollateralEvent): void => {
     fxToken
   );
   updateVault(vault as Vault, event.address, account, fxToken);
-};
+}
