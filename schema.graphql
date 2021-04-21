@@ -1,7 +1,8 @@
 type Vault @entity {
     id: ID!
-    fxToken: BigInt!
+    account: String!
+    fxToken: String!
     debt: BigInt!
     collateralAsEther: BigInt!
-    collateralRatio: BigDecimal!
+    collateralRatio: BigInt!
 }
