@@ -32,6 +32,8 @@ const createVaultEntity = (
   vault.debt = BigInt.fromI32(0);
   vault.collateralAsEther = BigInt.fromI32(0);
   vault.collateralRatio = BigInt.fromI32(0);
+  vault.minimumRatio = BigInt.fromI32(0);
+  vault.isRedeemable = false;
   return vault;
 };
 
@@ -44,8 +46,13 @@ const updateVault = (
   const treasury = Treasury.bind(treasuryAddress);
   const vaultLibrary = VaultLibrary.bind(treasury.vaultLibrary());
   vault.debt = treasury.getDebt(account, fxToken);
-  vault.collateralRatio = vaultLibrary.getCurrentRatio(account, fxToken);
   vault.collateralAsEther = treasury.getTotalCollateralBalanceAsEth(account, fxToken);
+  vault.collateralRatio = vaultLibrary.getCurrentRatio(account, fxToken);
+  vault.minimumRatio = vaultLibrary.getVaultMinimumRatio(account, fxToken);
+  vault.isRedeemable = (
+    vault.collateralRatio.lt(vault.minimumRatio) &&
+    vault.collateralAsEther.gt(BigInt.fromI32(0))
+  );
   vault.save();
 };
 

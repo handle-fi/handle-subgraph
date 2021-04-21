@@ -5,4 +5,6 @@ type Vault @entity {
     debt: BigInt!
     collateralAsEther: BigInt!
     collateralRatio: BigInt!
+    minimumRatio: BigInt!
+    isRedeemable: Boolean!
 }
