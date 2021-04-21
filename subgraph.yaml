@@ -1,4 +1,4 @@
-﻿specVersion: 0.0.1
+﻿specVersion: 0.0.2
 description: handle.fi - the global defi FX protocol
 repository: https://github.com/handle-fi/handle-subgraph
 schema:
@@ -13,7 +13,7 @@ dataSources:
       startBlock: 10000834
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ./src/mappings/treasury.ts
       entities:
@@ -22,7 +22,7 @@ dataSources:
         - name: Treasury
           file: ./abis/treasury.json
       eventHandlers:
-        - event: DebtUpdate(indexed address,indexed address,uint256)
+        - event: UpdateDebt(indexed address,indexed address,uint256)
           handler: handleDebtUpdate
-        - event: CollateralUpdate(indexed address,indexed address,indexed address,uint256)
+        - event: UpdateCollateral(indexed address,indexed address,indexed address,uint256)
           handler: handleCollateralUpdate
