@@ -15,14 +15,16 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mappings/treasury.ts
+      file: ./src/mappings/vault.ts
       entities:
         - Vault
       abis:
         - name: Treasury
           file: ./abis/treasury.json
+        - name: Comptroller
+          file: ./abis/comptroller.json
       eventHandlers:
-        - event: UpdateDebt(indexed address,indexed address,uint256)
+        - event: UpdateDebt(indexed address,indexed address)
           handler: handleDebtUpdate
-        - event: UpdateCollateral(indexed address,indexed address,indexed address,uint256)
+        - event: UpdateCollateral(indexed address,indexed address,indexed address)
           handler: handleCollateralUpdate
