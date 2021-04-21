@@ -1,0 +1,28 @@
+﻿specVersion: 0.0.1
+description: handle.fi - the global defi FX protocol
+repository: https://github.com/handle-fi/handle-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Treasury
+    network: kovan
+    source:
+      address: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+      abi: Treasury
+      startBlock: 10000834
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mappings/treasury.ts
+      entities:
+        - Vault
+      abis:
+        - name: Treasury
+          file: ./abis/treasury.json
+      eventHandlers:
+        - event: DebtUpdate(indexed address,indexed address,uint256)
+          handler: handleDebtUpdate
+        - event: CollateralUpdate(indexed address,indexed address,indexed address,uint256)
+          handler: handleCollateralUpdate
