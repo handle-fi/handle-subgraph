@@ -1,5 +1,5 @@
-﻿specVersion: 0.0.1
-description: handle.fi - the global defi FX protocol
+﻿specVersion: 0.0.2
+description: handle.fi multicurrency stablecoins, powering the global defi FX protocol
 repository: https://github.com/handle-fi/handle-subgraph
 schema:
   file: ./schema.graphql
