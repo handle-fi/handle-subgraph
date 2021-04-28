@@ -5,6 +5,7 @@ type Vault @entity {
     debt: BigInt!
     collateralAsEther: BigInt!
     collateralRatio: BigInt!
+    collateralTokens: [VaultCollateral!]!
     minimumRatio: BigInt!
     isRedeemable: Boolean!
     isLiquidatable: Boolean!
@@ -12,8 +13,7 @@ type Vault @entity {
 
 type VaultCollateral @entity {
     id: ID!
-    account: String!
-    fxToken: String!
+    vault: Vault!
     address: String!
     amount: BigInt!
 }
