@@ -9,10 +9,13 @@ import {
   UpdateDebt as UpdateDebtEvent,
   Treasury
 } from "../types/Treasury/Treasury";
-import { Vault } from "../types/schema";
+import {Vault, VaultCollateral} from "../types/schema";
 import { Comptroller } from "../types/Treasury/Comptroller";
 import { VaultLibrary } from "../types/Treasury/VaultLibrary";
 import {concat} from "../utils";
+
+// TODO: Set and load this from Comptroller contract.
+const liquidationPercentage = BigInt.fromString("80");
 
 const getVaultId = (account: Address, fxToken: Address): string => (
   crypto.keccak256(concat(
@@ -20,6 +23,16 @@ const getVaultId = (account: Address, fxToken: Address): string => (
     ByteArray.fromHexString(fxToken.toHex())
   )).toHex()
 );
+
+const getVaultCollateralId = (
+  vaultId: string,
+  collateralToken: Address
+): string => {
+  return crypto.keccak256(concat(
+    ByteArray.fromHexString(vaultId),
+    ByteArray.fromHexString(collateralToken.toHex())
+  )).toHex()
+};
 
 const createVaultEntity = (
   id: string,
@@ -29,10 +42,10 @@ const createVaultEntity = (
   const vault = new Vault(id);
   vault.fxToken = fxToken.toHex();
   vault.account = account.toHex();
-  vault.debt = BigInt.fromI32(0);
-  vault.collateralAsEther = BigInt.fromI32(0);
-  vault.collateralRatio = BigInt.fromI32(0);
-  vault.minimumRatio = BigInt.fromI32(0);
+  vault.debt = BigInt.fromString("0");
+  vault.collateralAsEther = BigInt.fromString("0");
+  vault.collateralRatio = BigInt.fromString("0");
+  vault.minimumRatio = BigInt.fromString("0");
   vault.isRedeemable = false;
   return vault;
 };
@@ -51,9 +64,34 @@ const updateVault = (
   vault.minimumRatio = vaultLibrary.getVaultMinimumRatio(account, fxToken);
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
-    vault.collateralAsEther.gt(BigInt.fromI32(0))
+    vault.collateralAsEther.gt(BigInt.fromString("0")) &&
+    vault.debt.gt(BigInt.fromString("0"))
+  );
+  vault.isLiquidatable = (
+    vault.isRedeemable &&
+    vault.collateralRatio.lt(
+      vault.minimumRatio
+        .times(liquidationPercentage)
+        .div(BigInt.fromString("100"))
+    )
   );
   vault.save();
+};
+
+const getCreateVaultCollateral = (
+  vault: Vault,
+  collateralToken: Address
+): VaultCollateral => {
+  const vaultCollateralId = getVaultCollateralId(vault.id, collateralToken);
+  let vaultCollateral = VaultCollateral.load(vaultCollateralId);
+  if (vaultCollateral == null) {
+    vaultCollateral = new VaultCollateral(vaultCollateralId);
+    vaultCollateral.account = vault.account;
+    vaultCollateral.fxToken = vault.fxToken;
+    vaultCollateral.address = collateralToken.toHex();
+    vaultCollateral.amount = BigInt.fromString("0");
+  }
+  return vaultCollateral as VaultCollateral;
 };
 
 export function handleDebtUpdate (event: UpdateDebtEvent): void {
@@ -71,6 +109,7 @@ export function handleDebtUpdate (event: UpdateDebtEvent): void {
 export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   const account = event.params.account;
   const fxToken = event.params.fxToken;
+  const collateralToken = event.params.collateralToken;
   const vaultId = getVaultId(account, fxToken);
   let vault = Vault.load(vaultId) || createVaultEntity(
     vaultId,
@@ -78,4 +117,16 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     fxToken
   );
   updateVault(vault as Vault, event.address, account, fxToken);
+  // Update vault collateral entity.
+  const vaultCollateral = getCreateVaultCollateral(
+    vault as Vault,
+    collateralToken
+  );
+  const treasury = Treasury.bind(event.address);
+  vaultCollateral.amount = treasury.getCollateralBalance(
+    account,
+    collateralToken,
+    fxToken
+  );
+  vaultCollateral.save();
 }

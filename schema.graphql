@@ -7,4 +7,13 @@ type Vault @entity {
     collateralRatio: BigInt!
     minimumRatio: BigInt!
     isRedeemable: Boolean!
+    isLiquidatable: Boolean!
+}
+
+type VaultCollateral @entity {
+    id: ID!
+    account: String!
+    fxToken: String!
+    address: String!
+    amount: BigInt!
 }
