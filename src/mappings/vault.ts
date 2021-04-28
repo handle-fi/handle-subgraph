@@ -51,7 +51,8 @@ const updateVault = (
   vault.minimumRatio = vaultLibrary.getVaultMinimumRatio(account, fxToken);
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
-    vault.collateralAsEther.gt(BigInt.fromI32(0))
+    vault.collateralAsEther.gt(BigInt.fromI32(0)) &&
+    vault.debt.gt(BigInt.fromI32(0))
   );
   vault.save();
 };
