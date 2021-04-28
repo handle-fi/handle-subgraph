@@ -48,7 +48,6 @@ const createVaultEntity = (
   vault.minimumRatio = BigInt.fromString("0");
   vault.isRedeemable = false;
   vault.isLiquidatable = false;
-  vault.collateralTokens = [];
   return vault;
 };
 
@@ -119,6 +118,7 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     fxToken
   );
   vault = updateVault(vault as Vault, event.address, account, fxToken);
+  vault.save();
   // Update vault collateral entity.
   const vaultCollateral = getCreateVaultCollateral(
     vault as Vault,
@@ -131,8 +131,4 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     fxToken
   );
   vaultCollateral.save();
-  if (!vault.collateralTokens.includes(vaultCollateral.id)) {
-    vault.collateralTokens.push(vaultCollateral.id);
-    vault.save();
-  }
 }

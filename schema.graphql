@@ -5,7 +5,7 @@ type Vault @entity {
     debt: BigInt!
     collateralAsEther: BigInt!
     collateralRatio: BigInt!
-    collateralTokens: [VaultCollateral!]!
+    collateralTokens: [VaultCollateral!]! @derivedFrom(field: "vault")
     minimumRatio: BigInt!
     isRedeemable: Boolean!
     isLiquidatable: Boolean!
