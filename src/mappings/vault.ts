@@ -14,6 +14,9 @@ import { Comptroller } from "../types/Treasury/Comptroller";
 import { VaultLibrary } from "../types/Treasury/VaultLibrary";
 import {concat} from "../utils";
 
+// TODO: Set and load this from Comptroller contract.
+const liquidationPercentage = BigInt.fromString("80");
+
 const getVaultId = (account: Address, fxToken: Address): string => (
   crypto.keccak256(concat(
     ByteArray.fromHexString(account.toHex()),
@@ -53,6 +56,14 @@ const updateVault = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
     vault.collateralAsEther.gt(BigInt.fromI32(0)) &&
     vault.debt.gt(BigInt.fromI32(0))
+  );
+  vault.isLiquidatable = (
+    vault.isRedeemable &&
+    vault.collateralRatio.lt(
+      vault.minimumRatio
+        .times(liquidationPercentage)
+        .div(BigInt.fromString("100"))
+    )
   );
   vault.save();
 };

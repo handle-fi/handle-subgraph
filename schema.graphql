@@ -7,4 +7,5 @@ type Vault @entity {
     collateralRatio: BigInt!
     minimumRatio: BigInt!
     isRedeemable: Boolean!
+    isLiquidatable: Boolean!
 }
