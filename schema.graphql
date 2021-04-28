@@ -9,3 +9,11 @@ type Vault @entity {
     isRedeemable: Boolean!
     isLiquidatable: Boolean!
 }
+
+type VaultCollateral @entity {
+    id: ID!
+    account: String!
+    fxToken: String!
+    address: String!
+    amount: BigInt!
+}
