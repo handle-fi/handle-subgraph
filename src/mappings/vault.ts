@@ -32,10 +32,10 @@ const createVaultEntity = (
   const vault = new Vault(id);
   vault.fxToken = fxToken.toHex();
   vault.account = account.toHex();
-  vault.debt = BigInt.fromI32(0);
-  vault.collateralAsEther = BigInt.fromI32(0);
-  vault.collateralRatio = BigInt.fromI32(0);
-  vault.minimumRatio = BigInt.fromI32(0);
+  vault.debt = BigInt.fromString("0");
+  vault.collateralAsEther = BigInt.fromString("0");
+  vault.collateralRatio = BigInt.fromString("0");
+  vault.minimumRatio = BigInt.fromString("0");
   vault.isRedeemable = false;
   return vault;
 };
@@ -54,8 +54,8 @@ const updateVault = (
   vault.minimumRatio = vaultLibrary.getVaultMinimumRatio(account, fxToken);
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
-    vault.collateralAsEther.gt(BigInt.fromI32(0)) &&
-    vault.debt.gt(BigInt.fromI32(0))
+    vault.collateralAsEther.gt(BigInt.fromString("0")) &&
+    vault.debt.gt(BigInt.fromString("0"))
   );
   vault.isLiquidatable = (
     vault.isRedeemable &&
