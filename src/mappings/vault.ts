@@ -60,9 +60,9 @@ const updateVault = (
   const treasury = Treasury.bind(treasuryAddress);
   const vaultLibrary = VaultLibrary.bind(treasury.vaultLibrary());
   vault.debt = treasury.getDebt(account, fxToken);
-  vault.collateralAsEther = treasury.getTotalCollateralBalanceAsEth(account, fxToken);
+  vault.collateralAsEther = vaultLibrary.getTotalCollateralBalanceAsEth(account, fxToken);
   vault.collateralRatio = vaultLibrary.getCurrentRatio(account, fxToken);
-  vault.minimumRatio = vaultLibrary.getVaultMinimumRatio(account, fxToken);
+  vault.minimumRatio = vaultLibrary.getMinimumRatio(account, fxToken);
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
     vault.collateralAsEther.gt(BigInt.fromString("0")) &&
