@@ -18,3 +18,20 @@ type VaultCollateral @entity {
     address: String!
     amount: BigInt!
 }
+
+type fxKeeperPool @entity {
+    id: ID!
+    fxToken: String!
+    totalDeposits: BigInt!
+    depositorCount: BigInt!
+    liquidationsExecuted: BigInt!
+    collateralTokens: [fxKeeperPoolCollateral!]! @derivedFrom(field: "pool")
+    collateralAddresses: [String!]!
+}
+
+type fxKeeperPoolCollateral @entity {
+    id: ID!
+    pool: fxKeeperPool!
+    address: String!
+    amount: BigInt!
+}
