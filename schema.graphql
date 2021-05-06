@@ -6,6 +6,7 @@ type Vault @entity {
     collateralAsEther: BigInt!
     collateralRatio: BigInt!
     collateralTokens: [VaultCollateral!]! @derivedFrom(field: "vault")
+    collateralAddresses: [String!]!
     minimumRatio: BigInt!
     isRedeemable: Boolean!
     isLiquidatable: Boolean!

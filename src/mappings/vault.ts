@@ -48,6 +48,7 @@ const createVaultEntity = (
   vault.minimumRatio = BigInt.fromString("0");
   vault.isRedeemable = false;
   vault.isLiquidatable = false;
+  vault.collateralAddresses = [];
   return vault;
 };
 
@@ -118,13 +119,24 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     fxToken
   );
   vault = updateVault(vault as Vault, event.address, account, fxToken);
+  // Add or remove collateral token address to array.
+  const treasury = Treasury.bind(event.address);
+  const collateralBalance = treasury.getCollateralBalance(account, collateralToken, fxToken);
+  const addresses = vault.collateralAddresses;
+  const hasCollateral = addresses.includes(collateralToken.toHex());
+  if (collateralBalance.equals(BigInt.fromString("0")) && hasCollateral) {
+    addresses.splice(addresses.indexOf(collateralToken.toHex()), 1);
+    vault.collateralAddresses = addresses;
+  } else if (collateralBalance.gt(BigInt.fromString("0")) && !hasCollateral) {
+    addresses.push(collateralToken.toHex());
+    vault.collateralAddresses = addresses;
+  }
   vault.save();
   // Update vault collateral entity.
   const vaultCollateral = getCreateVaultCollateral(
     vault as Vault,
     collateralToken
   );
-  const treasury = Treasury.bind(event.address);
   vaultCollateral.amount = treasury.getCollateralBalance(
     account,
     collateralToken,
