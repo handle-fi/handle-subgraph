@@ -8,9 +8,9 @@ dataSources:
     name: Treasury
     network: kovan
     source:
-      address: "0xc3FD0e01323b167b4c1deE00bBf5D62eFa3F342a"
+      address: "0x606BFB80231278E21ba4192B135FC3A45f7Eb1C8"
       abi: Treasury
-      startBlock: 24405660
+      startBlock: 24684055
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
