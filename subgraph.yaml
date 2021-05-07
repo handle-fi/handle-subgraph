@@ -8,9 +8,9 @@ dataSources:
     name: Treasury
     network: kovan
     source:
-      address: "0xc3FD0e01323b167b4c1deE00bBf5D62eFa3F342a"
+      address: "0x606BFB80231278E21ba4192B135FC3A45f7Eb1C8"
       abi: Treasury
-      startBlock: 24405660
+      startBlock: 24684055
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -30,3 +30,35 @@ dataSources:
           handler: handleDebtUpdate
         - event: UpdateCollateral(indexed address,indexed address,indexed address)
           handler: handleCollateralUpdate
+  - kind: ethereum/contract
+    name: fxKeeperPool
+    network: kovan
+    source:
+      address: "0x4CAd7d94B78cE3F8778c03fCa4Bacea6FCFe3838"
+      abi: fxKeeperPool
+      startBlock: 24685842
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/fxKeeperPool.ts
+      entities:
+        - Vault
+      abis:
+        - name: fxKeeperPool
+          file: ./abis/fxKeeperPool.json
+        - name: Treasury
+          file: ./abis/Treasury.json
+        - name: Comptroller
+          file: ./abis/Comptroller.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: Stake(indexed address,indexed address,uint256)
+          handler: handleStake
+        - event: Unstake(indexed address,indexed address,uint256)
+          handler: handleUnstake
+        - event: Withdraw(indexed address,indexed address)
+          handler: handleWithdraw
+        - event: Liquidate(indexed address,indexed address,uint256)
+          handler: handleLiquidate

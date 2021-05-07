@@ -6,6 +6,7 @@ type Vault @entity {
     collateralAsEther: BigInt!
     collateralRatio: BigInt!
     collateralTokens: [VaultCollateral!]! @derivedFrom(field: "vault")
+    collateralAddresses: [String!]!
     minimumRatio: BigInt!
     isRedeemable: Boolean!
     isLiquidatable: Boolean!
@@ -14,6 +15,23 @@ type Vault @entity {
 type VaultCollateral @entity {
     id: ID!
     vault: Vault!
+    address: String!
+    amount: BigInt!
+}
+
+type fxKeeperPool @entity {
+    id: ID!
+    fxToken: String!
+    totalDeposits: BigInt!
+    depositorCount: BigInt!
+    liquidationsExecuted: BigInt!
+    collateralTokens: [fxKeeperPoolCollateral!]! @derivedFrom(field: "pool")
+    collateralAddresses: [String!]!
+}
+
+type fxKeeperPoolCollateral @entity {
+    id: ID!
+    pool: fxKeeperPool!
     address: String!
     amount: BigInt!
 }
