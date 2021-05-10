@@ -8,9 +8,9 @@ dataSources:
     name: Treasury
     network: kovan
     source:
-      address: "0x606BFB80231278E21ba4192B135FC3A45f7Eb1C8"
+      address: "0x3A745801ea780B054bBa87Fd078Db829A3cc0F87"
       abi: Treasury
-      startBlock: 24684055
+      startBlock: 24764411
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -34,9 +34,9 @@ dataSources:
     name: fxKeeperPool
     network: kovan
     source:
-      address: "0x4CAd7d94B78cE3F8778c03fCa4Bacea6FCFe3838"
+      address: "0xF2F2CA9B74aac2b146AD9438450913e913Ed667F"
       abi: fxKeeperPool
-      startBlock: 24685842
+      startBlock: 24764411
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
