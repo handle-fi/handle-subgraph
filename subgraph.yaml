@@ -15,9 +15,12 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mappings/vault.ts
+      file: ./src/mappings/handle.ts
       entities:
         - Vault
+        - VaultCollateral
+        - CollateralToken
+        - fxToken
       abis:
         - name: Handle
           file: ./abis/Handle.json
@@ -28,6 +31,10 @@ dataSources:
           handler: handleDebtUpdate
         - event: UpdateCollateral(indexed address,indexed address,indexed address)
           handler: handleCollateralUpdate
+        - event: ConfigureFxToken(indexed address)
+          handler: handleFxTokenConfiguration
+        - event: ConfigureCollateralToken(indexed address)
+          handler: handleCollateralTokenConfiguration
   - kind: ethereum/contract
     name: fxKeeperPool
     network: kovan
@@ -41,7 +48,8 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mappings/fxKeeperPool.ts
       entities:
-        - Vault
+        - fxKeeperPool
+        - fxKeeperPoolCollateral
       abis:
         - name: fxKeeperPool
           file: ./abis/fxKeeperPool.json
