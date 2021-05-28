@@ -8,12 +8,11 @@ import {
   UpdateCollateral as UpdateCollateralEvent,
   UpdateDebt as UpdateDebtEvent,
   Handle
-} from "../types/Handle/Handle";
-import {Vault, VaultCollateral} from "../types/schema";
-import { VaultLibrary } from "../types/Handle/VaultLibrary";
-import {concat} from "../utils";
+} from "../../types/Handle/Handle";
+import {Vault, VaultCollateral} from "../../types/schema";
+import { VaultLibrary } from "../../types/Handle/VaultLibrary";
+import {concat} from "../../utils";
 
-// TODO: Set and load this from Comptroller contract.
 const liquidationPercentage = BigInt.fromString("80");
 
 const getVaultId = (account: Address, fxToken: Address): string => (
