@@ -13,6 +13,7 @@ type fxToken @entity {
     name: String!
     symbol: String!
     rewardRatio: BigInt!
+    totalSupply: BigInt!
     isValid: Boolean!
 }
 
