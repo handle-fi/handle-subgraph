@@ -9,9 +9,10 @@ import {
   UpdateDebt as UpdateDebtEvent,
   Handle
 } from "../../types/Handle/Handle";
-import {Vault, VaultCollateral} from "../../types/schema";
+import {Vault, VaultCollateral, CollateralToken, fxToken} from "../../types/schema";
 import { VaultLibrary } from "../../types/Handle/VaultLibrary";
 import {concat} from "../../utils";
+import { ERC20 } from "../../types/Handle/ERC20";
 
 const liquidationPercentage = BigInt.fromString("80");
 
@@ -94,22 +95,26 @@ const getCreateVaultCollateral = (
 };
 
 export function handleDebtUpdate (event: UpdateDebtEvent): void {
-  const account = event.params.account;
-  const fxToken = event.params.fxToken;
-  const vaultId = getVaultId(account, fxToken);
+  const vaultId = getVaultId(event.params.account, event.params.fxToken);
   let vault = Vault.load(vaultId) || createVaultEntity(
     vaultId,
-    account,
-    fxToken
+    event.params.account,
+    event.params.fxToken
   );
-  vault = updateVault(vault as Vault, event.address, account, fxToken);
+  vault = updateVault(vault as Vault, event.address, event.params.account, event.params.fxToken);
   vault.save();
+  // Update fxToken total supply.
+  const token = fxToken.load(event.params.fxToken.toHex());
+  if (token != null) {
+    token.totalSupply = ERC20.bind(event.params.fxToken).totalSupply();
+    token.save();
+  }
 }
 
 export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   const account = event.params.account;
   const fxToken = event.params.fxToken;
-  const collateralToken = event.params.collateralToken;
+  const collateralAddress = event.params.collateralToken;
   const vaultId = getVaultId(account, fxToken);
   let vault = Vault.load(vaultId) || createVaultEntity(
     vaultId,
@@ -119,26 +124,33 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   vault = updateVault(vault as Vault, event.address, account, fxToken);
   // Add or remove collateral token address to array.
   const handle = Handle.bind(event.address);
-  const collateralBalance = handle.getCollateralBalance(account, collateralToken, fxToken);
+  const collateralBalance = handle.getCollateralBalance(account, collateralAddress, fxToken);
   const addresses = vault.collateralAddresses;
-  const hasCollateral = addresses.includes(collateralToken.toHex());
+  const hasCollateral = addresses.includes(collateralAddress.toHex());
   if (collateralBalance.equals(BigInt.fromString("0")) && hasCollateral) {
-    addresses.splice(addresses.indexOf(collateralToken.toHex()), 1);
+    addresses.splice(addresses.indexOf(collateralAddress.toHex()), 1);
     vault.collateralAddresses = addresses;
   } else if (collateralBalance.gt(BigInt.fromString("0")) && !hasCollateral) {
-    addresses.push(collateralToken.toHex());
+    addresses.push(collateralAddress.toHex());
     vault.collateralAddresses = addresses;
   }
   vault.save();
   // Update vault collateral entity.
   const vaultCollateral = getCreateVaultCollateral(
     vault as Vault,
-    collateralToken
+    collateralAddress
   );
   vaultCollateral.amount = handle.getCollateralBalance(
     account,
-    collateralToken,
+    collateralAddress,
     fxToken
   );
   vaultCollateral.save();
+  // Update collateral balance.
+  // Update fxToken total supply.
+  const token = CollateralToken.load(collateralAddress.toHex());
+  if (token != null) {
+    token.totalBalance = handle.totalBalances(collateralAddress);
+    token.save();
+  }
 }
