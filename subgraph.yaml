@@ -26,6 +26,8 @@ dataSources:
           file: ./abis/Handle.json
         - name: VaultLibrary
           file: ./abis/VaultLibrary.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: UpdateDebt(indexed address,indexed address)
           handler: handleDebtUpdate
