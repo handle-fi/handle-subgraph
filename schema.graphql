@@ -13,6 +13,7 @@ type fxToken @entity {
     name: String!
     symbol: String!
     rewardRatio: BigInt!
+    isValid: Boolean!
 }
 
 type Vault @entity {
