@@ -7,11 +7,10 @@
 import {
   UpdateCollateral as UpdateCollateralEvent,
   UpdateDebt as UpdateDebtEvent,
-  Treasury
-} from "../types/Treasury/Treasury";
+  Handle
+} from "../types/Handle/Handle";
 import {Vault, VaultCollateral} from "../types/schema";
-import { Comptroller } from "../types/Treasury/Comptroller";
-import { VaultLibrary } from "../types/Treasury/VaultLibrary";
+import { VaultLibrary } from "../types/Handle/VaultLibrary";
 import {concat} from "../utils";
 
 // TODO: Set and load this from Comptroller contract.
@@ -54,13 +53,13 @@ const createVaultEntity = (
 
 const updateVault = (
   vault: Vault,
-  treasuryAddress: Address,
+  handleAddress: Address,
   account: Address,
   fxToken: Address
 ): Vault => {
-  const treasury = Treasury.bind(treasuryAddress);
-  const vaultLibrary = VaultLibrary.bind(treasury.vaultLibrary());
-  vault.debt = treasury.getDebt(account, fxToken);
+  const handle = Handle.bind(handleAddress);
+  const vaultLibrary = VaultLibrary.bind(handle.vaultLibrary());
+  vault.debt = handle.getDebt(account, fxToken);
   vault.collateralAsEther = vaultLibrary.getTotalCollateralBalanceAsEth(account, fxToken);
   vault.collateralRatio = vaultLibrary.getCurrentRatio(account, fxToken);
   vault.minimumRatio = vaultLibrary.getMinimumRatio(account, fxToken);
@@ -120,8 +119,8 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   );
   vault = updateVault(vault as Vault, event.address, account, fxToken);
   // Add or remove collateral token address to array.
-  const treasury = Treasury.bind(event.address);
-  const collateralBalance = treasury.getCollateralBalance(account, collateralToken, fxToken);
+  const handle = Handle.bind(event.address);
+  const collateralBalance = handle.getCollateralBalance(account, collateralToken, fxToken);
   const addresses = vault.collateralAddresses;
   const hasCollateral = addresses.includes(collateralToken.toHex());
   if (collateralBalance.equals(BigInt.fromString("0")) && hasCollateral) {
@@ -137,7 +136,7 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     vault as Vault,
     collateralToken
   );
-  vaultCollateral.amount = treasury.getCollateralBalance(
+  vaultCollateral.amount = handle.getCollateralBalance(
     account,
     collateralToken,
     fxToken
