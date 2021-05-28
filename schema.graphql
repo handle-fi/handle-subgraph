@@ -5,6 +5,7 @@ type CollateralToken @entity {
     mintCollateralRatio: BigInt!
     liquidationFee: BigInt!
     totalBalance: BigInt!
+    isValid: Boolean!
 }
 
 type fxToken @entity {
