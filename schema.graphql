@@ -1,3 +1,19 @@
+type CollateralToken @entity {
+    id: ID!
+    name: String!
+    symbol: String!
+    mintCollateralRatio: BigInt!
+    liquidationFee: BigInt!
+    totalBalance: BigInt!
+}
+
+type fxToken @entity {
+    id: ID!
+    name: String!
+    symbol: String!
+    rewardRatio: BigInt!
+}
+
 type Vault @entity {
     id: ID!
     account: String!
