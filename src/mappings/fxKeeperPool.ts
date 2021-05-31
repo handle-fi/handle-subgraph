@@ -1,4 +1,4 @@
-﻿﻿import {
+﻿import {
   BigInt,
   ByteArray,
   Address,
@@ -8,7 +8,7 @@ import {
   fxKeeperPool as fxKeeperPoolSchema,
   fxKeeperPoolCollateral
 } from "../types/schema";
-import { Comptroller } from "../types/Treasury/Comptroller";
+import { Handle } from "../types/fxKeeperPool/Handle";
 import {
   Stake as StakeEvent,
   Unstake as UnstakeEvent,
@@ -68,8 +68,8 @@ const updateAllCollateralTokens = (
   pool: fxKeeperPoolSchema,
   contract: fxKeeperPool
 ): fxKeeperPoolSchema => {
-  const comptroller = Comptroller.bind(contract.comptroller());
-  const collateralTypes = comptroller.getAllCollateralTypes();
+  const handle = Handle.bind(contract.handleAddress());
+  const collateralTypes = handle.getAllCollateralTypes();
   const fxToken = Address.fromString(pool.fxToken);
   for (let i = 0; i < collateralTypes.length; i++) {
     const collateralType = collateralTypes[i];
