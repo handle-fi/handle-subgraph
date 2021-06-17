@@ -61,6 +61,7 @@ type fxKeeperPoolCollateral @entity {
 type pctPool @entity {
     id: ID!
     collateralToken: String!
+    percentInvested: Int!
     totalDeposits: BigInt!
     totalInvestments: BigInt!
     totalClaimable: BigInt!
