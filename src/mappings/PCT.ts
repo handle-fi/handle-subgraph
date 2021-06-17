@@ -31,12 +31,14 @@ const createPoolEntity = (
   collateralToken: Address
 ): pctPool => {
   const pool = new pctPool(id);
+  const pct = PCT.bind(address);
   pool.collateralToken = collateralToken.toHex();
   pool.totalDeposits = BigInt.fromString("0");
   pool.totalInvestments = BigInt.fromString("0");
   pool.totalClaimable = BigInt.fromString("0");
   pool.depositorCount = BigInt.fromString("0");
   pool.interfaces = [];
+  pool.protocolFee = pct.protocolFee();
   return pool;
 };
 
