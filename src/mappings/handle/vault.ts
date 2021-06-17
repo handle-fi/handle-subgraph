@@ -76,6 +76,7 @@ const updateVault = (
         .div(BigInt.fromString("100"))
     )
   );
+  vault.interestLastUpdateDate = handle.getInterestLastUpdateDate(account, fxToken);
   return vault;
 };
 
