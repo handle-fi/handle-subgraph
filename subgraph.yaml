@@ -68,3 +68,37 @@ dataSources:
           handler: handleWithdraw
         - event: Liquidate(indexed address,indexed address,uint256)
           handler: handleLiquidate
+  - kind: ethereum/contract
+    name: PCT
+    network: kovan
+    source:
+      address: "0x52ff6AF7F8646c1Ed4Ebd54e2D1C54dEad19D7D0"
+      abi: PCT
+      startBlock: 25524925
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/PCT.ts
+      entities:
+        - pctPool
+      abis:
+        - name: PCT
+          file: ./abis/PCT.json
+      eventHandlers:
+        - event: Stake(indexed address,indexed address,indexed address,uint256)
+          handler: handleStake
+        - event: Unstake(indexed address,indexed address,indexed address,uint256)
+          handler: handleUnstake
+        - event: ClaimInterest(indexed address,indexed address,uint256)
+          handler: handleUserClaimInterest
+        - event: SetProtocolInterface(indexed address,indexed address)
+          handler: handleSetProtocolInterface
+        - event: UnsetProtocolInterface(indexed address,indexed address)
+          handler: handleUnsetProtocolInterface
+        - event: ProtocolClaimInterest(indexed address,indexed address,uint256)
+          handler: handleProtocolClaimInterest
+        - event: ProtocolReturnFunds(indexed address,indexed address,uint256)
+          handler: handleProtocolReturnFunds
+        - event: ProtocolDepositFunds(indexed address,indexed address,uint256)
+          handler: handleProtocolDepositFunds
