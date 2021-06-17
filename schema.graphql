@@ -57,3 +57,13 @@ type fxKeeperPoolCollateral @entity {
     address: String!
     amount: BigInt!
 }
+
+type pctPool @entity {
+    id: ID!
+    collateralToken: String!
+    totalDeposits: BigInt!
+    totalInvestments: BigInt!
+    totalClaimable: BigInt!
+    depositorCount: BigInt!
+    interfaces: [String!]!
+}
