@@ -13,8 +13,8 @@ const createCollateralTokenEntity = (address: Address, handle: Handle): Collater
   let symbolCall = token.try_symbol();
   entity.symbol = !symbolCall.reverted ? symbolCall.value : "";
   let nameCall = token.try_name();
-  entity.name = !nameCall.reverted ? nameCall.value : "";
-  entity.totalBalance = handle.totalBalances(address);
+  entity.name = !nameCall.reverted ? nameCall.value : ""
+  entity.decimals = token.decimals();
   return entity;
 };
 
@@ -23,9 +23,9 @@ const createFxTokenEntity = (address: Address): fxToken => {
   const token = ERC20.bind(address);
   let symbolCall = token.try_symbol();
   entity.symbol = !symbolCall.reverted ? symbolCall.value : "";
+  entity.decimals = token.decimals();
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : "";
-  entity.totalSupply = token.totalSupply();
   return entity;
 };
 
@@ -35,8 +35,8 @@ export function handleFxTokenConfiguration (event: ConfigureFxTokenEvent): void 
   const entity = fxToken.load(address.toHex()) || createFxTokenEntity(address);
   // Set contract ata.
   const handle = Handle.bind(event.address);
-  entity.rewardRatio = handle.getTokenDetails(address).rewardRatio;
   entity.isValid = handle.isFxTokenValid(address);
+  entity.totalSupply = ERC20.bind(address).totalSupply();
   entity.save();
 }
 
@@ -50,5 +50,7 @@ export function handleCollateralTokenConfiguration (event: ConfigureCollateralTo
   entity.liquidationFee = collateralDetails.liquidationFee;
   entity.mintCollateralRatio = collateralDetails.mintCR;
   entity.isValid = handle.isCollateralValid(address);
+  entity.interestRate = handle.getCollateralDetails(address).interestRate;
+  entity.totalBalance = handle.totalBalances(address);
   entity.save();
 }
