@@ -14,7 +14,11 @@ import { VaultLibrary } from "../../types/Handle/VaultLibrary";
 import {concat} from "../../utils";
 import { ERC20 } from "../../types/Handle/ERC20";
 
+const oneEth = BigInt.fromString("1000000000000000000");
 const liquidationPercentage = BigInt.fromString("80");
+const minimumLiquidationRatio = oneEth
+  .times(BigInt.fromString("110"))
+  .div(BigInt.fromString("100")); // 110%
 
 export const getVaultId = (account: Address, fxToken: Address): string => (
   crypto.keccak256(concat(
@@ -68,13 +72,14 @@ export const updateVault = (
     vault.collateralAsEther.gt(BigInt.fromString("0")) &&
     vault.debt.gt(BigInt.fromString("0"))
   );
+  let liquidationRatio = vault.minimumRatio
+        .times(liquidationPercentage)
+        .div(BigInt.fromString("100"));
+  if (liquidationRatio.lt(minimumLiquidationRatio))
+    liquidationRatio = minimumLiquidationRatio;
   vault.isLiquidatable = (
     vault.isRedeemable &&
-    vault.collateralRatio.lt(
-      vault.minimumRatio
-        .times(liquidationPercentage)
-        .div(BigInt.fromString("100"))
-    )
+    vault.collateralRatio.lt(liquidationRatio)
   );
   vault.interestLastUpdateDate = handle.getInterestLastUpdateDate(account, fxToken);
   return vault;
