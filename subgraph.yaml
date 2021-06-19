@@ -21,6 +21,7 @@ dataSources:
         - VaultCollateral
         - CollateralToken
         - fxToken
+        - VaultRegistry
       abis:
         - name: Handle
           file: ./abis/Handle.json
@@ -116,7 +117,7 @@ dataSources:
       file: ./src/mappings/oracle.ts
       entities:
         - Vault
-        - VaultOwners
+        - VaultRegistry
       abis:
         - name: AggregatorV3Interface
           file: ./abis/AggregatorV3Interface.json

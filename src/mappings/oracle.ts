@@ -1,5 +1,5 @@
 ﻿import { AnswerUpdated } from "../types/ETH_USD/AggregatorV3Interface";
-import { Vault, VaultOwners } from "../types/schema";
+import { Vault, VaultRegistry } from "../types/schema";
 import { Handle } from "../types/ETH_USD/Handle";
 import { Address } from '@graphprotocol/graph-ts';
 import { getVaultId, updateVault } from "./handle/vault";
@@ -66,7 +66,8 @@ export function handleAnswerUpdated(event: AnswerUpdated): void {
 }
 
 function updateVaultsByFxToken(fxToken: Address): void {
-  const vaultOwners = VaultOwners.load(fxToken.toHex());
+  const vaultOwners = VaultRegistry.load(fxToken.toHex());
+  if (vaultOwners == null) return;
   const owners = vaultOwners.owners;
   for (let i = 0; i < owners.length; i++) {
     const account = Address.fromString(owners[i]);
@@ -79,7 +80,8 @@ function updateVaultsByFxToken(fxToken: Address): void {
 
 function updateVaultsByCollateralToken(collateralToken: Address, fxTokens: Address[]): void {
   for (let i = 0; i < fxTokens.length; i++) {
-    const vaultOwners = VaultOwners.load(fxTokens[i].toHex());
+    const vaultOwners = VaultRegistry.load(fxTokens[i].toHex());
+    if (vaultOwners == null) continue;
     const owners = vaultOwners.owners;
     for (let j = 0; j < owners.length; j++) {
       const account = Address.fromString(owners[j]);

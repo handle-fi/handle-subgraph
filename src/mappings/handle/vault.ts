@@ -9,7 +9,7 @@ import {
   UpdateDebt as UpdateDebtEvent,
   Handle
 } from "../../types/Handle/Handle";
-import {Vault, VaultCollateral, CollateralToken, fxToken, VaultOwners} from "../../types/schema";
+import {Vault, VaultCollateral, CollateralToken, fxToken, VaultRegistry} from "../../types/schema";
 import { VaultLibrary } from "../../types/Handle/VaultLibrary";
 import {concat} from "../../utils";
 import { ERC20 } from "../../types/Handle/ERC20";
@@ -100,13 +100,13 @@ const getCreateVaultCollateral = (
   return vaultCollateral as VaultCollateral;
 };
 
-const getCreateVaultOwners = (fxToken: Address): VaultOwners => {
-  let vaultOwners = VaultOwners.load((fxToken.toHex()))
-  if (vaultOwners == null) {
-    vaultOwners = new VaultOwners(fxToken.toHex());
-    vaultOwners.owners = [];
+const getCreateVaultRegistry = (fxToken: Address): VaultRegistry => {
+  let registry = VaultRegistry.load((fxToken.toHex()))
+  if (registry == null) {
+    registry = new VaultRegistry(fxToken.toHex());
+    registry.owners = [];
   }
-  return vaultOwners as VaultOwners;
+  return registry as VaultRegistry;
 };
 
 export function handleDebtUpdate (event: UpdateDebtEvent): void {
@@ -125,12 +125,12 @@ export function handleDebtUpdate (event: UpdateDebtEvent): void {
     token.save();
   }
   // Add account to vaultOwners array if needed.
-  const vaultOwners = getCreateVaultOwners(event.params.fxToken);
-  const ownersArray = vaultOwners.owners;
+  const vaultRegistry = getCreateVaultRegistry(event.params.fxToken);
+  const ownersArray = vaultRegistry.owners;
   if (!ownersArray.includes(event.params.account.toHex())) {
     ownersArray.push(event.params.account.toHex());
-    vaultOwners.owners = ownersArray;
-    vaultOwners.save();
+    vaultRegistry.owners = ownersArray;
+    vaultRegistry.save();
   }
 }
 

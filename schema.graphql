@@ -34,7 +34,7 @@ type Vault @entity {
     isLiquidatable: Boolean!
 }
 
-type VaultOwners @entity {
+type VaultRegistry @entity {
     id: ID!
     owners: [String!]!
 }
