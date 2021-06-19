@@ -1,7 +1,7 @@
 ﻿# handle subgraph
 | Network | Subgraph URL |
 | --- | --- |
-| Mainnet | https://thegraph.com/explorer/subgraph/handle-fi/handle-kovan |  
+| Mainnet | https://thegraph.com/explorer/subgraph/handle-fi/handle |  
 | Kovan | https://thegraph.com/explorer/subgraph/handle-fi/handle-kovan |
 
 ## Subgraph definition file
