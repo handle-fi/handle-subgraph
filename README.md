@@ -16,3 +16,6 @@ See the table below for the oracle addresses listened to on Kovan.
 | KRW_USD | 0x9e465c5499023675051517E9Ee5f4C334D91e369 | 0xc8b946afc5e38c7067d0425115208d5925aa067d |
 | BTC_ETH | 0xF7904a295A029a3aBDFFB6F12755974a958C7C25 | 0x222d3bd9bc8aef87afa9c8e4c7468da3f2c7130d |
 | DAI_ETH | 0x22B58f1EbEDfCA50feF632bD73368b2FdA96D541 | 0x30fde1d82a4e58e579a64dbbcd8d4650805cf3c8 |
+
+## TODO
+It would be ideal to implement a pre-processor so that when switching network, replacing contract addresses, network name and other related variables can be done automatically from a config file. That would require generating the `subgraph.yml` file and another config file to feed the data required by `src/mappings/oracle.ts`.
