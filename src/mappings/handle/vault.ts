@@ -9,14 +9,14 @@ import {
   UpdateDebt as UpdateDebtEvent,
   Handle
 } from "../../types/Handle/Handle";
-import {Vault, VaultCollateral, CollateralToken, fxToken} from "../../types/schema";
+import {Vault, VaultCollateral, CollateralToken, fxToken, VaultOwners} from "../../types/schema";
 import { VaultLibrary } from "../../types/Handle/VaultLibrary";
 import {concat} from "../../utils";
 import { ERC20 } from "../../types/Handle/ERC20";
 
 const liquidationPercentage = BigInt.fromString("80");
 
-const getVaultId = (account: Address, fxToken: Address): string => (
+export const getVaultId = (account: Address, fxToken: Address): string => (
   crypto.keccak256(concat(
     ByteArray.fromHexString(account.toHex()),
     ByteArray.fromHexString(fxToken.toHex())
@@ -51,7 +51,7 @@ const createVaultEntity = (
   return vault;
 };
 
-const updateVault = (
+export const updateVault = (
   vault: Vault,
   handleAddress: Address,
   account: Address,
@@ -95,6 +95,15 @@ const getCreateVaultCollateral = (
   return vaultCollateral as VaultCollateral;
 };
 
+const getCreateVaultOwners = (fxToken: Address): VaultOwners => {
+  let vaultOwners = VaultOwners.load((fxToken.toHex()))
+  if (vaultOwners == null) {
+    vaultOwners = new VaultOwners(fxToken.toHex());
+    vaultOwners.owners = [];
+  }
+  return vaultOwners as VaultOwners;
+};
+
 export function handleDebtUpdate (event: UpdateDebtEvent): void {
   const vaultId = getVaultId(event.params.account, event.params.fxToken);
   let vault = Vault.load(vaultId) || createVaultEntity(
@@ -109,6 +118,12 @@ export function handleDebtUpdate (event: UpdateDebtEvent): void {
   if (token != null) {
     token.totalSupply = ERC20.bind(event.params.fxToken).totalSupply();
     token.save();
+  }
+  // Add account to vaultOwners array if needed.
+  const vaultOwners = getCreateVaultOwners(event.params.fxToken);
+  if (!vaultOwners.owners.includes(event.params.account.toHex())) {
+    vaultOwners.owners = [...vaultOwners.owners, event.params.account.toHex()];
+    vaultOwners.save();
   }
 }
 
