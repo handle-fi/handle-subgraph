@@ -1,7 +1,7 @@
-﻿import { AnswerUpdated } from "../types/AggregatorV3Interface/AggregatorV3Interface";
+﻿import { AnswerUpdated } from "../types/ETH_USD/AggregatorV3Interface";
 import { Vault, VaultOwners } from "../types/schema";
+import { Handle } from "../types/ETH_USD/Handle";
 import { Address } from '@graphprotocol/graph-ts';
-import { Handle } from "../types/Handle/Handle";
 import { getVaultId, updateVault } from "./handle/vault";
 
 const handleAddress = Address.fromString("0x4cc22AB2d7D0159ee2F98245B1BbA6AAa471DCef");
