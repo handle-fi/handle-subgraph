@@ -65,7 +65,8 @@ export const updateVault = (
   const vaultLibrary = VaultLibrary.bind(handle.vaultLibrary());
   vault.debt = handle.getDebt(account, fxToken);
   vault.collateralAsEther = vaultLibrary.getTotalCollateralBalanceAsEth(account, fxToken);
-  vault.collateralRatio = vaultLibrary.getCurrentRatio(account, fxToken);
+  const debtAsEth = vaultLibrary.getDebtAsEth(account, fxToken);
+  vault.collateralRatio = vault.collateralAsEther.times(oneEth).div(debtAsEth);
   vault.minimumRatio = vaultLibrary.getMinimumRatio(account, fxToken);
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
