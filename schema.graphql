@@ -34,6 +34,11 @@ type Vault @entity {
     isLiquidatable: Boolean!
 }
 
+type VaultOwners @entity {
+    id: ID! # fxToken
+    owners: [String!]!
+}
+
 type VaultCollateral @entity {
     id: ID!
     vault: Vault!
