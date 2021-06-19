@@ -109,7 +109,7 @@ dataSources:
     source:
       address: "0x10b3c106c4ed7d22b0e7abe5dc43bdfa970a153c"
       abi: AggregatorV3Interface
-      startBlock: 25524925
+      startBlock: 25570000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
