@@ -126,8 +126,10 @@ export function handleDebtUpdate (event: UpdateDebtEvent): void {
   }
   // Add account to vaultOwners array if needed.
   const vaultOwners = getCreateVaultOwners(event.params.fxToken);
-  if (!vaultOwners.owners.includes(event.params.account.toHex())) {
-    vaultOwners.owners = [...vaultOwners.owners, event.params.account.toHex()];
+  const ownersArray = vaultOwners.owners;
+  if (!ownersArray.includes(event.params.account.toHex())) {
+    ownersArray.push(event.params.account.toHex());
+    vaultOwners.owners = ownersArray;
     vaultOwners.save();
   }
 }
