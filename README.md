@@ -19,3 +19,6 @@ See the table below for the oracle addresses listened to on Kovan.
 
 ## TODO
 It would be ideal to implement a pre-processor so that when switching network, replacing contract addresses, network name and other related variables can be done automatically from a config file. That would require generating the `subgraph.yml` file and another config file to feed the data required by `src/mappings/oracle.ts`.
+
+## Important notes
+The `startBlock` value for the different mappings in `subgraph.yaml` can be the block at which the Handle contract was deployed for all mappings except for oracles, otherwise the indexer will fail. The oracle mappings should start at around 50 blocks after the Handle contract was deployed to prevent errors.
