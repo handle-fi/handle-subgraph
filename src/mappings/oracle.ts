@@ -71,10 +71,11 @@ function updateVaultsByFxToken(fxToken: Address): void {
   const owners = vaultOwners.owners;
   for (let i = 0; i < owners.length; i++) {
     const account = Address.fromString(owners[i]);
-    const vault = Vault.load(getVaultId(account, fxToken));
+    let vault = Vault.load(getVaultId(account, fxToken));
     if (vault == null)
       continue;
-    updateVault(vault as Vault, handleAddress, account, fxToken);
+    vault = updateVault(vault as Vault, handleAddress, account, fxToken);
+    vault.save();
   }
 }
 
@@ -85,12 +86,13 @@ function updateVaultsByCollateralToken(collateralToken: Address, fxTokens: Addre
     const owners = vaultOwners.owners;
     for (let j = 0; j < owners.length; j++) {
       const account = Address.fromString(owners[j]);
-      const vault = Vault.load(getVaultId(account, fxTokens[i]));
+      let vault = Vault.load(getVaultId(account, fxTokens[i]));
       if (vault == null)
         continue;
       if (!vault.collateralAddresses.includes(collateralToken.toHex()))
         continue;
-      updateVault(vault as Vault, handleAddress, account, fxTokens[i]);
+      vault = updateVault(vault as Vault, handleAddress, account, fxTokens[i]);
+      vault.save();
     }
   }
 }
