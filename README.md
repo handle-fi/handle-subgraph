@@ -17,6 +17,16 @@ See the table below for the oracle addresses listened to on Kovan.
 | BTC_ETH | 0xF7904a295A029a3aBDFFB6F12755974a958C7C25 | 0x222d3bd9bc8aef87afa9c8e4c7468da3f2c7130d |
 | DAI_ETH | 0x22B58f1EbEDfCA50feF632bD73368b2FdA96D541 | 0x30fde1d82a4e58e579a64dbbcd8d4650805cf3c8 |
 
+## Running locally
+Take a look at the [graph-node README.md](https://github.com/graphprotocol/graph-node) for instructions on how to run a graph node locally. Requirements are postgres, rust and ipfs.  
+With hardhat, the start command would look like this:
+```
+cargo run -p graph-node --release -- \
+    --postgres-url postgresql://USERNAME[:PASSWORD]@localhost:5432/graph-node \
+    --ethereum-rpc hardhat:http://localhost:8545 \
+    --ipfs 127.0.0.1:5001
+```
+
 ## TODO
 It would be ideal to implement a pre-processor so that when switching network, replacing contract addresses, network name and other related variables can be done automatically from a config file. That would require generating the `subgraph.yml` file and another config file to feed the data required by `src/mappings/oracle.ts`.
 
