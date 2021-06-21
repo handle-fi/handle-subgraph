@@ -26,6 +26,7 @@ cargo run -p graph-node --release -- \
     --ethereum-rpc hardhat:http://localhost:8545 \
     --ipfs 127.0.0.1:5001
 ```
+Ensure that the `graph-node` database is always clean (i.e. delete and recreate it) after restarting the local blockchain, otherwise indexing will fail.
 
 ## TODO
 It would be ideal to implement a pre-processor so that when switching network, replacing contract addresses, network name and other related variables can be done automatically from a config file. That would require generating the `subgraph.yml` file and another config file to feed the data required by `src/mappings/oracle.ts`.
