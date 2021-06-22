@@ -37,7 +37,18 @@ function aggregatorToToken(aggregator: string): string | null {
   // AUD_USD -> fxAUD
   if (aggregator == "0x8ef23ba9e66168d68b460139178513a3653fab70")
     return tokens[0];
-  // TODO: finish this implementation for all pairs
+  // EUR_USD -> fxEUR
+  if (aggregator == "0x326df4935006469f3d2b20009a25ec79c3a07510")
+    return tokens[1];
+  // KRW_USD -> fxKRW
+  if (aggregator == "0xc8b946afc5e38c7067d0425115208d5925aa067d")
+    return tokens[2];
+  // BTC_ETH -> WBTC
+  if (aggregator == "0x222d3bd9bc8aef87afa9c8e4c7468da3f2c7130d")
+    return tokens[4];
+  // DAI_ETH -> DAI
+  if (aggregator == "0x30fde1d82a4e58e579a64dbbcd8d4650805cf3c8")
+    return tokens[5];
   return null;
 }
 
