@@ -49,10 +49,29 @@ const createVaultEntity = (
   vault.collateralAsEther = BigInt.fromString("0");
   vault.collateralRatio = BigInt.fromString("0");
   vault.minimumRatio = BigInt.fromString("0");
+  vault.redeemableTokens = BigInt.fromString("0");
   vault.isRedeemable = false;
   vault.isLiquidatable = false;
   vault.collateralAddresses = [];
   return vault;
+};
+
+/**
+ * Calculates tokens required for redemption or liquidation.
+ * @param crTarget The final CR target after redemption/liquidation.
+ * @param debtAsEther Vault debt as ether.
+ * @param collateralAsEther Vault collateral as ether.
+ * @param [collateralReturnRatio] Return ratio, 1 eth for no fees, 1.05 for 5% of fees on liquidation.
+ */
+const calculateTokensRequiredForCrIncrease = (
+  crTarget: BigInt,
+  debtAsEther: BigInt,
+  collateralAsEther: BigInt,
+  collateralReturnRatio: BigInt
+): BigInt => {
+  const nominator = crTarget.times(debtAsEther).minus(collateralAsEther.times(oneEth));
+  const denominator = crTarget.minus(collateralReturnRatio);
+  return nominator.div(denominator);
 };
 
 export const updateVault = (
@@ -84,6 +103,19 @@ export const updateVault = (
     vault.isRedeemable &&
     vault.collateralRatio.lt(liquidationRatio)
   );
+  if (vault.isRedeemable) {
+    const redeemableAsEther = calculateTokensRequiredForCrIncrease(
+      vault.minimumRatio,
+      debtAsEth,
+      vault.collateralAsEther,
+      oneEth // no fees for redemption.
+    );
+    // Convert to fxToken currency.
+    vault.redeemableTokens = handle.getTokenPrice(fxToken).times(redeemableAsEther).div(oneEth);
+    // If redeemable amount is greater than debt, cap the value, although this is a critical issue.
+    if (vault.redeemableTokens.gt(vault.debt))
+      vault.redeemableTokens = vault.debt;
+  }
   vault.interestLastUpdateDate = handle.getInterestLastUpdateDate(account, fxToken);
   return vault;
 };
