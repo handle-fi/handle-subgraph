@@ -9,14 +9,18 @@ import {
   UpdateDebt as UpdateDebtEvent,
   Handle
 } from "../../types/Handle/Handle";
-import {Vault, VaultCollateral, CollateralToken, fxToken} from "../../types/schema";
+import {Vault, VaultCollateral, CollateralToken, fxToken, VaultRegistry} from "../../types/schema";
 import { VaultLibrary } from "../../types/Handle/VaultLibrary";
 import {concat} from "../../utils";
 import { ERC20 } from "../../types/Handle/ERC20";
 
+const oneEth = BigInt.fromString("1000000000000000000");
 const liquidationPercentage = BigInt.fromString("80");
+const minimumLiquidationRatio = oneEth
+  .times(BigInt.fromString("110"))
+  .div(BigInt.fromString("100")); // 110%
 
-const getVaultId = (account: Address, fxToken: Address): string => (
+export const getVaultId = (account: Address, fxToken: Address): string => (
   crypto.keccak256(concat(
     ByteArray.fromHexString(account.toHex()),
     ByteArray.fromHexString(fxToken.toHex())
@@ -51,7 +55,7 @@ const createVaultEntity = (
   return vault;
 };
 
-const updateVault = (
+export const updateVault = (
   vault: Vault,
   handleAddress: Address,
   account: Address,
@@ -61,20 +65,24 @@ const updateVault = (
   const vaultLibrary = VaultLibrary.bind(handle.vaultLibrary());
   vault.debt = handle.getDebt(account, fxToken);
   vault.collateralAsEther = vaultLibrary.getTotalCollateralBalanceAsEth(account, fxToken);
-  vault.collateralRatio = vaultLibrary.getCurrentRatio(account, fxToken);
+  const debtAsEth = vaultLibrary.getDebtAsEth(account, fxToken);
+  vault.collateralRatio = debtAsEth.gt(BigInt.fromString("0"))
+    ? vault.collateralAsEther.times(oneEth).div(debtAsEth)
+    : BigInt.fromString("0");
   vault.minimumRatio = vaultLibrary.getMinimumRatio(account, fxToken);
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
     vault.collateralAsEther.gt(BigInt.fromString("0")) &&
     vault.debt.gt(BigInt.fromString("0"))
   );
+  let liquidationRatio = vault.minimumRatio
+        .times(liquidationPercentage)
+        .div(BigInt.fromString("100"));
+  if (liquidationRatio.lt(minimumLiquidationRatio))
+    liquidationRatio = minimumLiquidationRatio;
   vault.isLiquidatable = (
     vault.isRedeemable &&
-    vault.collateralRatio.lt(
-      vault.minimumRatio
-        .times(liquidationPercentage)
-        .div(BigInt.fromString("100"))
-    )
+    vault.collateralRatio.lt(liquidationRatio)
   );
   vault.interestLastUpdateDate = handle.getInterestLastUpdateDate(account, fxToken);
   return vault;
@@ -95,6 +103,15 @@ const getCreateVaultCollateral = (
   return vaultCollateral as VaultCollateral;
 };
 
+const getCreateVaultRegistry = (fxToken: Address): VaultRegistry => {
+  let registry = VaultRegistry.load((fxToken.toHex()))
+  if (registry == null) {
+    registry = new VaultRegistry(fxToken.toHex());
+    registry.owners = [];
+  }
+  return registry as VaultRegistry;
+};
+
 export function handleDebtUpdate (event: UpdateDebtEvent): void {
   const vaultId = getVaultId(event.params.account, event.params.fxToken);
   let vault = Vault.load(vaultId) || createVaultEntity(
@@ -109,6 +126,14 @@ export function handleDebtUpdate (event: UpdateDebtEvent): void {
   if (token != null) {
     token.totalSupply = ERC20.bind(event.params.fxToken).totalSupply();
     token.save();
+  }
+  // Add account to vaultOwners array if needed.
+  const vaultRegistry = getCreateVaultRegistry(event.params.fxToken);
+  const ownersArray = vaultRegistry.owners;
+  if (!ownersArray.includes(event.params.account.toHex())) {
+    ownersArray.push(event.params.account.toHex());
+    vaultRegistry.owners = ownersArray;
+    vaultRegistry.save();
   }
 }
 
