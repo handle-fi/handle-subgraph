@@ -1,5 +1,5 @@
 ﻿import { AnswerUpdated } from "../types/ETH_USD/AggregatorV3Interface";
-import { Vault, VaultRegistry } from "../types/schema";
+import {CollateralToken, fxToken, Vault, VaultRegistry} from "../types/schema";
 import { Handle } from "../types/ETH_USD/Handle";
 import { Address } from '@graphprotocol/graph-ts';
 import { getVaultId, updateVault } from "./handle/vault";
@@ -69,10 +69,14 @@ export function handleAnswerUpdated(event: AnswerUpdated): void {
   // Update all required vaults.
   for (let i = 0; i < tokensToUpdate.length; i ++) {
     const tokenAddress = Address.fromString(tokensToUpdate[i]);
-    if (fxTokens.includes(tokenAddress))
+    if (fxTokens.includes(tokenAddress)) {
+      updateFxTokenRate(tokenAddress, handle);
       updateVaultsByFxToken(tokenAddress);
-    if (collateralTokens.includes(tokenAddress))
+    }
+    if (collateralTokens.includes(tokenAddress)) {
+      updateCollateralTokenRate(tokenAddress, handle);
       updateVaultsByCollateralToken(tokenAddress, fxTokens);
+    }
   }
 }
 
@@ -106,4 +110,16 @@ function updateVaultsByCollateralToken(collateralToken: Address, fxTokens: Addre
       vault.save();
     }
   }
+}
+
+function updateFxTokenRate(address: Address, handle: Handle): void {
+  const entity = fxToken.load(address.toHex());
+  if (entity == null) return;
+  entity.rate = handle.getTokenPrice(address);
+}
+
+function updateCollateralTokenRate(address: Address, handle: Handle): void {
+  const entity = CollateralToken.load(address.toHex());
+  if (entity == null) return;
+  entity.rate = handle.getTokenPrice(address);
 }
