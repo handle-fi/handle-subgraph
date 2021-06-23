@@ -8,6 +8,7 @@ type CollateralToken @entity {
     interestRate: BigInt!
     totalBalance: BigInt!
     isValid: Boolean!
+    rate: BigInt!
 }
 
 type fxToken @entity {
@@ -17,6 +18,7 @@ type fxToken @entity {
     decimals: Int!
     totalSupply: BigInt!
     isValid: Boolean!
+    rate: BigInt!
 }
 
 type Vault @entity {
