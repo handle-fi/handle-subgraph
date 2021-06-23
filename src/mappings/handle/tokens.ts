@@ -7,6 +7,8 @@ import {
 import { CollateralToken, fxToken } from "../../types/schema";
 import { ERC20 } from "../../types/Handle/ERC20";
 
+const oneEth = BigInt.fromString("1000000000000000000");
+
 const createCollateralTokenEntity = (address: Address, handle: Handle): CollateralToken => {
   const entity = new CollateralToken(address.toHex());
   const token = ERC20.bind(address);
@@ -15,8 +17,8 @@ const createCollateralTokenEntity = (address: Address, handle: Handle): Collater
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : ""
   entity.decimals = token.decimals();
-  // Set initial rate to 1 wei to prevent division by zero errors.
-  entity.rate = BigInt.fromString("1");
+  // Set initial rate to 1 ether to prevent division by zero errors.
+  entity.rate = oneEth;
   return entity;
 };
 
@@ -28,8 +30,8 @@ const createFxTokenEntity = (address: Address): fxToken => {
   entity.decimals = token.decimals();
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : "";
-  // Set initial rate to 1 wei to prevent division by zero errors.
-  entity.rate = BigInt.fromString("1");
+  // Set initial rate to 1 ether to prevent division by zero errors.
+  entity.rate = oneEth;
   return entity;
 };
 
