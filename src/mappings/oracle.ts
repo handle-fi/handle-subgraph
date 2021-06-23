@@ -116,10 +116,12 @@ function updateFxTokenRate(address: Address, handle: Handle): void {
   const entity = fxToken.load(address.toHex());
   if (entity == null) return;
   entity.rate = handle.getTokenPrice(address);
+  entity.save();
 }
 
 function updateCollateralTokenRate(address: Address, handle: Handle): void {
   const entity = CollateralToken.load(address.toHex());
   if (entity == null) return;
   entity.rate = handle.getTokenPrice(address);
+  entity.save();
 }
