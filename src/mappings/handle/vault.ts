@@ -15,6 +15,7 @@ import {concat} from "../../utils";
 import { ERC20 } from "../../types/Handle/ERC20";
 
 const oneEth = BigInt.fromString("1000000000000000000");
+const zero = BigInt.fromString("0");
 const liquidationPercentage = BigInt.fromString("80");
 const minimumLiquidationRatio = oneEth
   .times(BigInt.fromString("110"))
@@ -45,11 +46,11 @@ const createVaultEntity = (
   const vault = new Vault(id);
   vault.fxToken = fxToken.toHex();
   vault.account = account.toHex();
-  vault.debt = BigInt.fromString("0");
-  vault.collateralAsEther = BigInt.fromString("0");
-  vault.collateralRatio = BigInt.fromString("0");
-  vault.minimumRatio = BigInt.fromString("0");
-  vault.redeemableTokens = BigInt.fromString("0");
+  vault.debt = zero;
+  vault.collateralAsEther = zero;
+  vault.collateralRatio = zero;
+  vault.minimumRatio = zero;
+  vault.redeemableTokens = zero;
   vault.isRedeemable = false;
   vault.isLiquidatable = false;
   vault.collateralAddresses = [];
@@ -85,14 +86,14 @@ export const updateVault = (
   vault.debt = handle.getDebt(account, fxToken);
   vault.collateralAsEther = vaultLibrary.getTotalCollateralBalanceAsEth(account, fxToken);
   const debtAsEth = vaultLibrary.getDebtAsEth(account, fxToken);
-  vault.collateralRatio = debtAsEth.gt(BigInt.fromString("0"))
+  vault.collateralRatio = debtAsEth.gt(zero)
     ? vault.collateralAsEther.times(oneEth).div(debtAsEth)
-    : BigInt.fromString("0");
+    : zero;
   vault.minimumRatio = vaultLibrary.getMinimumRatio(account, fxToken);
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
-    vault.collateralAsEther.gt(BigInt.fromString("0")) &&
-    vault.debt.gt(BigInt.fromString("0"))
+    vault.collateralAsEther.gt(zero) &&
+    vault.debt.gt(zero)
   );
   let liquidationRatio = vault.minimumRatio
         .times(liquidationPercentage)
@@ -115,9 +116,9 @@ export const updateVault = (
     // If redeemable amount is greater than debt, cap the value, although this is a critical issue.
     if (vault.redeemableTokens.gt(vault.debt))
       vault.redeemableTokens = vault.debt;
-  } else if (vault.redeemableTokens.gt(BigInt.fromString("0"))) {
+  } else if (vault.redeemableTokens.gt(zero)) {
     // Clear redeemable amount.
-    vault.redeemableTokens = BigInt.fromString("0");
+    vault.redeemableTokens = zero;
   }
   vault.interestLastUpdateDate = handle.getInterestLastUpdateDate(account, fxToken);
   return vault;
@@ -133,7 +134,7 @@ const getCreateVaultCollateral = (
     vaultCollateral = new VaultCollateral(vaultCollateralId);
     vaultCollateral.vault = vault.id;
     vaultCollateral.address = collateralToken.toHex();
-    vaultCollateral.amount = BigInt.fromString("0");
+    vaultCollateral.amount = zero;
   }
   return vaultCollateral as VaultCollateral;
 };
@@ -188,10 +189,10 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   const collateralBalance = handle.getCollateralBalance(account, collateralAddress, fxToken);
   const addresses = vault.collateralAddresses;
   const hasCollateral = addresses.includes(collateralAddress.toHex());
-  if (collateralBalance.equals(BigInt.fromString("0")) && hasCollateral) {
+  if (collateralBalance.equals(zero) && hasCollateral) {
     addresses.splice(addresses.indexOf(collateralAddress.toHex()), 1);
     vault.collateralAddresses = addresses;
-  } else if (collateralBalance.gt(BigInt.fromString("0")) && !hasCollateral) {
+  } else if (collateralBalance.gt(zero) && !hasCollateral) {
     addresses.push(collateralAddress.toHex());
     vault.collateralAddresses = addresses;
   }
