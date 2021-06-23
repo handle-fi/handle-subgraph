@@ -1,4 +1,4 @@
-﻿import { Address } from '@graphprotocol/graph-ts';
+﻿import {Address, BigInt} from '@graphprotocol/graph-ts';
 import {
   Handle,
   ConfigureFxToken as ConfigureFxTokenEvent,
@@ -15,6 +15,8 @@ const createCollateralTokenEntity = (address: Address, handle: Handle): Collater
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : ""
   entity.decimals = token.decimals();
+  // Set initial rate to 1 wei to prevent division by zero errors.
+  entity.rate = BigInt.fromString("1");
   return entity;
 };
 
@@ -26,6 +28,8 @@ const createFxTokenEntity = (address: Address): fxToken => {
   entity.decimals = token.decimals();
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : "";
+  // Set initial rate to 1 wei to prevent division by zero errors.
+  entity.rate = BigInt.fromString("1");
   return entity;
 };
 
