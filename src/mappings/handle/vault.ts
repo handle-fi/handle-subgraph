@@ -115,6 +115,9 @@ export const updateVault = (
     // If redeemable amount is greater than debt, cap the value, although this is a critical issue.
     if (vault.redeemableTokens.gt(vault.debt))
       vault.redeemableTokens = vault.debt;
+  } else if (vault.redeemableTokens.gt(BigInt.fromString("0"))) {
+    // Clear redeemable amount.
+    vault.redeemableTokens = BigInt.fromString("0");
   }
   vault.interestLastUpdateDate = handle.getInterestLastUpdateDate(account, fxToken);
   return vault;
