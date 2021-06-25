@@ -8,9 +8,9 @@ dataSources:
     name: Handle
     network: kovan
     source:
-      address: "0x4cc22AB2d7D0159ee2F98245B1BbA6AAa471DCef"
+      address: "0xBe9fa6c460702862bDc436f28fe594858E90B6A3"
       abi: Handle
-      startBlock: 25524925
+      startBlock: 25699010
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -42,9 +42,9 @@ dataSources:
     name: fxKeeperPool
     network: kovan
     source:
-      address: "0x02522EDB91FB5D55024750d76cFB81f2a2722484"
+      address: "0x946db32B5D8f895D41b5f0F95cDbE6eCc25b3CbE"
       abi: fxKeeperPool
-      startBlock: 25524925
+      startBlock: 25699010
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -73,9 +73,9 @@ dataSources:
     name: PCT
     network: kovan
     source:
-      address: "0x52ff6AF7F8646c1Ed4Ebd54e2D1C54dEad19D7D0"
+      address: "0x62BA9803c329c6CfCd436ba7A68257afbae12995"
       abi: PCT
-      startBlock: 25524925
+      startBlock: 25699010
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -109,7 +109,7 @@ dataSources:
     source:
       address: "0x10b3c106c4ed7d22b0e7abe5dc43bdfa970a153c"
       abi: AggregatorV3Interface
-      startBlock: 25570000
+      startBlock: 25699811
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -134,7 +134,7 @@ dataSources:
     source:
       address: "0x8ef23ba9e66168d68b460139178513a3653fab70"
       abi: AggregatorV3Interface
-      startBlock: 25570000
+      startBlock: 25699811
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -159,7 +159,7 @@ dataSources:
     source:
       address: "0x326df4935006469f3d2b20009a25ec79c3a07510"
       abi: AggregatorV3Interface
-      startBlock: 25570000
+      startBlock: 25699811
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -184,7 +184,7 @@ dataSources:
     source:
       address: "0xc8b946afc5e38c7067d0425115208d5925aa067d"
       abi: AggregatorV3Interface
-      startBlock: 25570000
+      startBlock: 25699811
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -209,7 +209,7 @@ dataSources:
     source:
       address: "0x222d3bd9bc8aef87afa9c8e4c7468da3f2c7130d"
       abi: AggregatorV3Interface
-      startBlock: 25570000
+      startBlock: 25699811
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -234,7 +234,7 @@ dataSources:
     source:
       address: "0x30fde1d82a4e58e579a64dbbcd8d4650805cf3c8"
       abi: AggregatorV3Interface
-      startBlock: 25570000
+      startBlock: 25699811
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
