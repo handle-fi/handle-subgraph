@@ -7,16 +7,17 @@
   "scripts": {
     "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
-    "create-local": "graph create handle-fi/handle-local --node http://127.0.0.1:8020",
-    "deploy-local": "graph deploy handle-fi/handle-local --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
-    "watch-local": "graph deploy handle-fi/handle-local --watch --debug --node http://127.0.0.1:8020/ --ipfs http://localhost:5001",
-    "deploy-kovan": "graph deploy handle-fi/handle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug",
-    "deploy-kovan-staging": "graph deploy handle-fi/handle-kovan /handle-kovan --ipfs https://api.staging.thegraph.com/ipfs/ --node https://api.staging.thegraph.com/deploy/"
+    "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml && mustache config/kovan.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
+    "create:local": "graph create handle-fi/handle-local --node http://127.0.0.1:8020",
+    "deploy:local": "graph deploy handle-fi/handle-local --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "watch:local": "graph deploy handle-fi/handle-local --watch --debug --node http://127.0.0.1:8020/ --ipfs http://localhost:5001",
+    "deploy:kovan": "graph deploy handle-fi/handle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.20.0",
     "@graphprotocol/graph-ts": "^0.20.0",
     "@types/node": "^14.14.41",
+    "mustache": "^4.2.0",
     "typescript": "^4.2.4"
   }
 }
