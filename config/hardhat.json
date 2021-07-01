@@ -1,0 +1,20 @@
+{
+    "network": "hardhat",
+    "handle": "0x592561915D1f7583434e0D972Ce1F74c126243CD",
+    "fxKeeperPool": "0xC5c9fEf7466e60BE52Cb8cB683ac6B4D7Ee8eEa6",
+    "PCT": "0x36C716C46307a936c835b1f9dF64d1117112bb2A",
+    "ETH_USD": "",
+    "AUD_USD": "",
+    "EUR_USD": "",
+    "KRW_USD": "",
+    "BTC_ETH": "",
+    "DAI_ETH": "",
+    "fxAUD": "0xB0B92b6e272cD29C8276D5851b857bEf60Eca074",
+    "fxEUR": "0xF25fD34262fEdc87D1B87eb375cE5698d28d6e27",
+    "fxKRW": "0xF95f21837ebD75320f7b705A9b2305D66277e9b0",
+    "WETH": "0x3cd1D3b3698470C159B7E62e07B7eA9095F5EF2b",
+    "WBTC": "0xC6B244fB04083a1603d7F6E76C3Fde77ED3587F3",
+    "DAI": "0x9d839c337df3394e6D7982601762D43B97c5fBB7",
+    "handleStartBlock": 0,
+    "oracleStartBlock": 999999999999999
+}
