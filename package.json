@@ -8,6 +8,7 @@
     "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
     "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml && mustache config/kovan.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
+    "prepare:local": "mustache config/hardhat.json subgraph.template.yaml > subgraph.yaml && mustache config/hardhat.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
     "create:local": "graph create handle-fi/handle-local --node http://127.0.0.1:8020",
     "deploy:local": "graph deploy handle-fi/handle-local --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "watch:local": "graph deploy handle-fi/handle-local --watch --debug --node http://127.0.0.1:8020/ --ipfs http://localhost:5001",
