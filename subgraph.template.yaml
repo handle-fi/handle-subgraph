@@ -6,9 +6,9 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Handle
-    network: kovan
+    network: {{network}}
     source:
-      address: {{handle}}
+      address: "{{handle}}"
       abi: Handle
       startBlock: {{handleStartBlock}}
     mapping:
@@ -40,9 +40,9 @@ dataSources:
           handler: handleCollateralTokenConfiguration
   - kind: ethereum/contract
     name: fxKeeperPool
-    network: kovan
+    network: {{network}}
     source:
-      address: {{fxKeeperPool}}
+      address: "{{fxKeeperPool}}"
       abi: fxKeeperPool
       startBlock: {{handleStartBlock}}
     mapping:
@@ -71,9 +71,9 @@ dataSources:
           handler: handleLiquidate
   - kind: ethereum/contract
     name: PCT
-    network: kovan
+    network: {{network}}
     source:
-      address: {{PCT}}
+      address: "{{PCT}}"
       abi: PCT
       startBlock: {{handleStartBlock}}
     mapping:
@@ -105,9 +105,9 @@ dataSources:
           handler: handleProtocolDepositFunds
   - kind: ethereum/contract
     name: ETH_USD
-    network: kovan
+    network: {{network}}
     source:
-      address: {{ETH_USD}}
+      address: "{{ETH_USD}}"
       abi: AggregatorV3Interface
       startBlock: {{oracleStartBlock}}
     mapping:
@@ -130,9 +130,9 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: AUD_USD
-    network: kovan
+    network: {{network}}
     source:
-      address: {{AUD_USD}}
+      address: "{{AUD_USD}}"
       abi: AggregatorV3Interface
       startBlock: {{oracleStartBlock}}
     mapping:
@@ -155,9 +155,9 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: EUR_USD
-    network: kovan
+    network: {{network}}
     source:
-      address: {{EUR_USD}}
+      address: "{{EUR_USD}}"
       abi: AggregatorV3Interface
       startBlock: {{oracleStartBlock}}
     mapping:
@@ -180,9 +180,9 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: KRW_USD
-    network: kovan
+    network: {{network}}
     source:
-      address: {{KRW_USD}}
+      address: "{{KRW_USD}}"
       abi: AggregatorV3Interface
       startBlock: {{oracleStartBlock}}
     mapping:
@@ -205,9 +205,9 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: BTC_ETH
-    network: kovan
+    network: {{network}}
     source:
-      address: {{BTC_ETH}}
+      address: "{{BTC_ETH}}"
       abi: AggregatorV3Interface
       startBlock: {{oracleStartBlock}}
     mapping:
@@ -230,9 +230,9 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: DAI_ETH
-    network: kovan
+    network: {{network}}
     source:
-      address: {{DAI_ETH}}
+      address: "{{DAI_ETH}}"
       abi: AggregatorV3Interface
       startBlock: {{oracleStartBlock}}
     mapping:
