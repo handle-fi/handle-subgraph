@@ -15,7 +15,9 @@ export function getTokens(): string[] {
     // 4 WBTC
     "{{WBTC}}",
     // 5 DAI
-    "{{DAI}}"
+    "{{DAI}}",
+    // 7 fxCNY
+    "{{fxCNY}}"
   ];
 }
 
@@ -43,5 +45,8 @@ export function aggregatorToToken(aggregator: string): string | null {
   // DAI_ETH -> DAI
   if (aggregator == "{{DAI_ETH}}")
     return tokens[5];
+  // CNY_USD -> fxCNY
+  if (aggregator == "{{CNY_USD}}")
+    return tokens[7];
   return null;
 }
