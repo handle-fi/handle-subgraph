@@ -81,7 +81,7 @@ const updateAllCollateralTokens = (
     const hasExistingAddress = pool.collateralAddresses.includes(collateralType.toHex());
     const collateralAddresses = pool.collateralAddresses;
     if (hasExistingAddress && collateralToken.amount.equals(BigInt.fromString("0"))) {
-      collateralAddresses.splice(pool.collateralAddresses.indexOf(collateralType.toHex(), 1));
+      collateralAddresses.splice(pool.collateralAddresses.indexOf(collateralType.toHex()), 1);
     } else if (!hasExistingAddress && collateralToken.amount.gt(BigInt.fromString("0"))) {
       collateralAddresses.push(collateralType.toHex());
     }
