@@ -1,4 +1,4 @@
-﻿specVersion: 0.0.2
+specVersion: 0.0.2
 description: handle.fi multicurrency stablecoins, powering the global defi FX protocol
 repository: https://github.com/handle-fi/handle-subgraph
 schema:
@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Handle
-    network: kovan
+    network: {{network}}
     source:
-      address: "0xBe9fa6c460702862bDc436f28fe594858E90B6A3"
+      address: "{{handle}}"
       abi: Handle
-      startBlock: 25699010
+      startBlock: {{handleStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -40,11 +40,11 @@ dataSources:
           handler: handleCollateralTokenConfiguration
   - kind: ethereum/contract
     name: fxKeeperPool
-    network: kovan
+    network: {{network}}
     source:
-      address: "0x946db32B5D8f895D41b5f0F95cDbE6eCc25b3CbE"
+      address: "{{fxKeeperPool}}"
       abi: fxKeeperPool
-      startBlock: 25699010
+      startBlock: {{handleStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -71,11 +71,11 @@ dataSources:
           handler: handleLiquidate
   - kind: ethereum/contract
     name: PCT
-    network: kovan
+    network: {{network}}
     source:
-      address: "0x62BA9803c329c6CfCd436ba7A68257afbae12995"
+      address: "{{PCT}}"
       abi: PCT
-      startBlock: 25699010
+      startBlock: {{handleStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -105,11 +105,11 @@ dataSources:
           handler: handleProtocolDepositFunds
   - kind: ethereum/contract
     name: ETH_USD
-    network: kovan
+    network: {{network}}
     source:
-      address: "0x10b3c106c4ed7d22b0e7abe5dc43bdfa970a153c"
+      address: "{{ETH_USD}}"
       abi: AggregatorV3Interface
-      startBlock: 25699811
+      startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -130,11 +130,11 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: AUD_USD
-    network: kovan
+    network: {{network}}
     source:
-      address: "0x8ef23ba9e66168d68b460139178513a3653fab70"
+      address: "{{AUD_USD}}"
       abi: AggregatorV3Interface
-      startBlock: 25699811
+      startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -155,11 +155,11 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: EUR_USD
-    network: kovan
+    network: {{network}}
     source:
-      address: "0x326df4935006469f3d2b20009a25ec79c3a07510"
+      address: "{{EUR_USD}}"
       abi: AggregatorV3Interface
-      startBlock: 25699811
+      startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -180,11 +180,36 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: KRW_USD
-    network: kovan
+    network: {{network}}
     source:
-      address: "0xc8b946afc5e38c7067d0425115208d5925aa067d"
+      address: "{{KRW_USD}}"
       abi: AggregatorV3Interface
-      startBlock: 25699811
+      startBlock: {{oracleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/oracle.ts
+      entities:
+        - Vault
+        - VaultRegistry
+      abis:
+        - name: AggregatorV3Interface
+          file: ./abis/AggregatorV3Interface.json
+        - name: Handle
+          file: ./abis/Handle.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+  - kind: ethereum/contract
+    name: CNY_USD
+    network: {{network}}
+    source:
+      address: "{{CNY_USD}}"
+      abi: AggregatorV3Interface
+      startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -205,11 +230,11 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: BTC_ETH
-    network: kovan
+    network: {{network}}
     source:
-      address: "0x222d3bd9bc8aef87afa9c8e4c7468da3f2c7130d"
+      address: "{{BTC_ETH}}"
       abi: AggregatorV3Interface
-      startBlock: 25699811
+      startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -230,11 +255,11 @@ dataSources:
           handler: handleAnswerUpdated
   - kind: ethereum/contract
     name: DAI_ETH
-    network: kovan
+    network: {{network}}
     source:
-      address: "0x30fde1d82a4e58e579a64dbbcd8d4650805cf3c8"
+      address: "{{DAI_ETH}}"
       abi: AggregatorV3Interface
-      startBlock: 25699811
+      startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

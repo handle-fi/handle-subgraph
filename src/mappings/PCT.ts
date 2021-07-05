@@ -140,7 +140,7 @@ export function handleUnsetProtocolInterface(event: UnsetProtocolInterface): voi
   const hasExistingAddress = pool.interfaces.includes(interfaceAddress.toHex());
   const interfaces = pool.interfaces;
   if (hasExistingAddress) {
-    interfaces.splice(interfaces.indexOf(interfaceAddress.toHex(), 1));
+    interfaces.splice(interfaces.indexOf(interfaceAddress.toHex()), 1);
     pool.interfaces = interfaces;
   }
   pool.save();
