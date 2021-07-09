@@ -127,7 +127,6 @@ export const updateVault = (
     // Clear redeemable amount.
     vault.redeemableTokens = zero;
   }
-  vault.interestLastUpdateDate = handle.getInterestLastUpdateDate(account, fxToken);
   return vault;
 };
 
