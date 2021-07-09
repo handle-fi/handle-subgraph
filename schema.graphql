@@ -30,7 +30,7 @@ type Vault @entity {
     collateralRatio: BigInt!
     collateralTokens: [VaultCollateral!]! @derivedFrom(field: "vault")
     collateralAddresses: [String!]!
-    interestLastUpdateDate: BigInt!
+    R0: BigInt!
     redeemableTokens: BigInt!
     minimumRatio: BigInt!
     isRedeemable: Boolean!
