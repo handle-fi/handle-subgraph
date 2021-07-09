@@ -83,9 +83,16 @@ export const updateVault = (
 ): Vault => {
   const handle = Handle.bind(handleAddress);
   const vaultLibrary = VaultLibrary.bind(handle.vaultLibrary());
-  vault.debt = handle.getDebt(account, fxToken);
+  const tokenPrice = handle.getTokenPrice(fxToken);
+  // Attempt to fetch debt and debt as ETH.
+  const tryDebt = handle.try_getDebt(account, fxToken);
+  const tryDebtAsEth = vaultLibrary.try_getDebtAsEth(account, fxToken);
+  // Assign valid values whether transaction reverted or not.
+  vault.debt = !tryDebt.reverted ? tryDebt.value : vault.debt;
+  const debtAsEth = !tryDebtAsEth.reverted
+    ? tryDebtAsEth.value
+    : vault.debt.times(tokenPrice).div(oneEth);
   vault.collateralAsEther = vaultLibrary.getTotalCollateralBalanceAsEth(account, fxToken);
-  const debtAsEth = vaultLibrary.getDebtAsEth(account, fxToken);
   vault.collateralRatio = debtAsEth.gt(zero)
     ? vault.collateralAsEther.times(oneEth).div(debtAsEth)
     : zero;
@@ -112,7 +119,7 @@ export const updateVault = (
       oneEth // no fees for redemption.
     );
     // Convert to fxToken currency.
-    vault.redeemableTokens = handle.getTokenPrice(fxToken).times(redeemableAsEther).div(oneEth);
+    vault.redeemableTokens = tokenPrice.times(redeemableAsEther).div(oneEth);
     // If redeemable amount is greater than debt, cap the value, although this is a critical issue.
     if (vault.redeemableTokens.gt(vault.debt))
       vault.redeemableTokens = vault.debt;
@@ -120,7 +127,6 @@ export const updateVault = (
     // Clear redeemable amount.
     vault.redeemableTokens = zero;
   }
-  vault.interestLastUpdateDate = handle.getInterestLastUpdateDate(account, fxToken);
   return vault;
 };
 
