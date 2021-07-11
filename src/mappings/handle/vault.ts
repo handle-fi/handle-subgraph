@@ -119,7 +119,7 @@ export const updateVault = (
       oneEth // no fees for redemption.
     );
     // Convert to fxToken currency.
-    vault.redeemableTokens = tokenPrice.times(redeemableAsEther).div(oneEth);
+    vault.redeemableTokens = redeemableAsEther.times(oneEth).div(tokenPrice);
     // If redeemable amount is greater than debt, cap the value, although this is a critical issue.
     if (vault.redeemableTokens.gt(vault.debt))
       vault.redeemableTokens = vault.debt;
