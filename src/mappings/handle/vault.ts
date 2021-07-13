@@ -99,6 +99,7 @@ export const updateVault = (
   vault.minimumRatio = vaultLibrary.getMinimumRatio(account, fxToken);
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
+    vault.collateralRatio.ge(oneEth) &&
     vault.collateralAsEther.gt(zero) &&
     vault.debt.gt(zero)
   );
