@@ -99,6 +99,7 @@ export const updateVault = (
   vault.minimumRatio = vaultLibrary.getMinimumRatio(account, fxToken);
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
+    vault.collateralRatio.ge(oneEth) &&
     vault.collateralAsEther.gt(zero) &&
     vault.debt.gt(zero)
   );
@@ -119,7 +120,9 @@ export const updateVault = (
       oneEth // no fees for redemption.
     );
     // Convert to fxToken currency.
-    vault.redeemableTokens = redeemableAsEther.times(oneEth).div(tokenPrice);
+    vault.redeemableTokens = vault.isRedeemable
+      ? redeemableAsEther.times(oneEth).div(tokenPrice)
+      : zero;
     // If redeemable amount is greater than debt, cap the value, although this is a critical issue.
     if (vault.redeemableTokens.gt(vault.debt))
       vault.redeemableTokens = vault.debt;
