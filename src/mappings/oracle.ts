@@ -21,14 +21,25 @@ export function handleAnswerUpdated(event: AnswerUpdated): void {
   const tokensToUpdate: string[] = aggregatorToToken(event.address.toHex()) != null
     ? [aggregatorToToken(event.address.toHex())]
     : getTokens();
+  updateTokenPrices(tokensToUpdate, handle);
+}
 
-  const fxTokens = TokenRegistry.load(handleAddress.toHex()).fxTokens
-    .map(x => Address.fromString(x));
+export function updateTokenPrices(tokens: string[], handle: Handle): void {
+  const tokenRegistry = TokenRegistry.load(handleAddress.toHex());
+  // Abort if the token registry was not created yet (before Handle deployment).
+  if (tokenRegistry == null)
+    return;
+
+  const fxTokenStrings: string[] = tokenRegistry.fxTokens;
+  const fxTokens: Address[] = [];
+  for (let i = 0; i < fxTokenStrings.length; i++) {
+    fxTokens.push(Address.fromString(fxTokenStrings[i]));
+  }
   const collateralTokens = handle.getAllCollateralTypes();
 
   // Update all required vaults.
-  for (let i = 0; i < tokensToUpdate.length; i ++) {
-    const tokenAddress = Address.fromString(tokensToUpdate[i]);
+  for (let i = 0; i < tokens.length; i ++) {
+    const tokenAddress = Address.fromString(tokens[i]);
     if (fxTokens.includes(tokenAddress)) {
       updateFxTokenRate(tokenAddress, handle);
       updateVaultsByFxToken(tokenAddress);
@@ -75,13 +86,17 @@ function updateVaultsByCollateralToken(collateralToken: Address, fxTokens: Addre
 function updateFxTokenRate(address: Address, handle: Handle): void {
   const entity = fxToken.load(address.toHex());
   if (entity == null) return;
-  entity.rate = handle.getTokenPrice(address);
+  const result = handle.try_getTokenPrice(address);
+  if (result.reverted) return;
+  entity.rate = result.value;
   entity.save();
 }
 
 function updateCollateralTokenRate(address: Address, handle: Handle): void {
   const entity = CollateralToken.load(address.toHex());
   if (entity == null) return;
-  entity.rate = handle.getTokenPrice(address);
+  const result = handle.try_getTokenPrice(address);
+  if (result.reverted) return;
+  entity.rate = result.value;
   entity.save();
 }
