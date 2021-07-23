@@ -4,10 +4,24 @@ import {
   ConfigureFxToken as ConfigureFxTokenEvent,
   ConfigureCollateralToken as ConfigureCollateralTokenEvent
 } from "../../types/Handle/Handle";
-import { CollateralToken, fxToken } from "../../types/schema";
+import {
+  Handle as ETH_USD_Handle
+} from "../../types/ETH_USD/Handle";
+import {CollateralToken, fxToken, TokenRegistry} from "../../types/schema";
 import { ERC20 } from "../../types/Handle/ERC20";
+import {updateTokenPrices} from "../oracle";
 
 const oneEth = BigInt.fromString("1000000000000000000");
+
+const getCreateTokenRegistry = (handle: Address): TokenRegistry => {
+  let registry = TokenRegistry.load((handle.toHex()))
+  if (registry == null) {
+    registry = new TokenRegistry(handle.toHex());
+    registry.fxTokens = [];
+    registry.collateralTokens = [];
+  }
+  return registry as TokenRegistry;
+};
 
 const createCollateralTokenEntity = (address: Address, handle: Handle): CollateralToken => {
   const entity = new CollateralToken(address.toHex());
@@ -44,6 +58,19 @@ export function handleFxTokenConfiguration (event: ConfigureFxTokenEvent): void 
   entity.isValid = handle.isFxTokenValid(address);
   entity.totalSupply = ERC20.bind(address).totalSupply();
   entity.save();
+  // Update token registry for fxToken.
+  const tokenRegistry = getCreateTokenRegistry(event.address);
+  const fxArray = tokenRegistry.fxTokens;
+  if (!fxArray.includes(address.toHex())) {
+    fxArray.push(address.toHex());
+    tokenRegistry.fxTokens = fxArray;
+    tokenRegistry.save();
+  }
+  // Also update token price.
+  updateTokenPrices(
+    [address.toHex()],
+    ETH_USD_Handle.bind(address)
+  );
 }
 
 export function handleCollateralTokenConfiguration (event: ConfigureCollateralTokenEvent): void {
@@ -59,4 +86,17 @@ export function handleCollateralTokenConfiguration (event: ConfigureCollateralTo
   entity.interestRate = handle.getCollateralDetails(address).interestRate;
   entity.totalBalance = handle.totalBalances(address);
   entity.save();
+  // Update token registry for collateral token.
+  const tokenRegistry = getCreateTokenRegistry(event.address);
+  const collateralArray = tokenRegistry.collateralTokens;
+  if (!collateralArray.includes(address.toHex())) {
+    collateralArray.push(address.toHex());
+    tokenRegistry.collateralTokens = collateralArray;
+    tokenRegistry.save();
+  }
+  // Also update token price.
+  updateTokenPrices(
+    [address.toHex()],
+    ETH_USD_Handle.bind(address)
+  );
 }

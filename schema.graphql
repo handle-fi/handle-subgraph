@@ -41,6 +41,12 @@ type VaultRegistry @entity {
     owners: [String!]!
 }
 
+type TokenRegistry @entity {
+    id: ID!
+    collateralTokens: [String]!
+    fxTokens: [String]!
+}
+
 type VaultCollateral @entity {
     id: ID!
     vault: Vault!
