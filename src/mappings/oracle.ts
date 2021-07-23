@@ -1,5 +1,11 @@
 import { AnswerUpdated } from "../types/ETH_USD/AggregatorV3Interface";
-import {CollateralToken, fxToken, Vault, VaultRegistry} from "../types/schema";
+import {
+  CollateralToken,
+  fxToken,
+  TokenRegistry,
+  Vault,
+  VaultRegistry
+} from "../types/schema";
 import { Handle } from "../types/ETH_USD/Handle";
 import { Address } from '@graphprotocol/graph-ts';
 import { getVaultId, updateVault } from "./handle/vault";
@@ -16,7 +22,8 @@ export function handleAnswerUpdated(event: AnswerUpdated): void {
     ? [aggregatorToToken(event.address.toHex())]
     : getTokens();
 
-  const fxTokens = handle.getAllFxTokens();
+  const fxTokens = TokenRegistry.load(handleAddress.toHex()).fxTokens
+    .map(x => Address.fromString(x));
   const collateralTokens = handle.getAllCollateralTypes();
 
   // Update all required vaults.
