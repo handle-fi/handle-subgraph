@@ -4,8 +4,13 @@ import {
   ConfigureFxToken as ConfigureFxTokenEvent,
   ConfigureCollateralToken as ConfigureCollateralTokenEvent
 } from "../../types/Handle/Handle";
+import {
+  Handle as ETH_USD_Handle
+} from "../../types/ETH_USD/Handle";
 import {CollateralToken, fxToken, TokenRegistry} from "../../types/schema";
 import { ERC20 } from "../../types/Handle/ERC20";
+import {updateTokenPrices} from "../oracle";
+import {getTokens} from "../oracleAddresses";
 
 const oneEth = BigInt.fromString("1000000000000000000");
 
@@ -62,6 +67,11 @@ export function handleFxTokenConfiguration (event: ConfigureFxTokenEvent): void 
     tokenRegistry.fxTokens = fxArray;
     tokenRegistry.save();
   }
+  // Also update token price.
+  updateTokenPrices(
+    [address.toHex()],
+    ETH_USD_Handle.bind(address)
+  );
 }
 
 export function handleCollateralTokenConfiguration (event: ConfigureCollateralTokenEvent): void {
@@ -85,4 +95,9 @@ export function handleCollateralTokenConfiguration (event: ConfigureCollateralTo
     tokenRegistry.collateralTokens = collateralArray;
     tokenRegistry.save();
   }
+  // Also update token price.
+  updateTokenPrices(
+    [address.toHex()],
+    ETH_USD_Handle.bind(address)
+  );
 }
