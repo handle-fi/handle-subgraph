@@ -35,7 +35,12 @@ export function updateTokenPrices(tokens: string[], handle: Handle): void {
   for (let i = 0; i < fxTokenStrings.length; i++) {
     fxTokens.push(Address.fromString(fxTokenStrings[i]));
   }
-  const collateralTokens = handle.getAllCollateralTypes();
+  
+  const collateralTokenStrings: string[] = tokenRegistry.collateralTokens;
+  const collateralTokens: Address[] = [];
+  for (let i = 0; i < collateralTokenStrings.length; i++) {
+    collateralTokens.push(Address.fromString(collateralTokenStrings[i]));
+  }
 
   // Update all required vaults.
   for (let i = 0; i < tokens.length; i ++) {
