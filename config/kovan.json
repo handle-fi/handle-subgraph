@@ -1,8 +1,8 @@
 {
     "network": "kovan",
-    "handle": "0xBe9fa6c460702862bDc436f28fe594858E90B6A3",
-    "fxKeeperPool": "0x946db32B5D8f895D41b5f0F95cDbE6eCc25b3CbE",
-    "PCT": "0x62BA9803c329c6CfCd436ba7A68257afbae12995",
+    "handle": "0xe213aa9c0B6875c17BDbCe050862161e58E64D06",
+    "fxKeeperPool": "0xCC1C1D6EaADaACeB2d4125FA0098B05b1C207c32",
+    "PCT": "0x0e058465658CcEF394B46d88AF58A050e771Ea92",
     "ETH_USD": "0x10b3c106c4ed7d22b0e7abe5dc43bdfa970a153c",
     "AUD_USD": "0x8ef23ba9e66168d68b460139178513a3653fab70",
     "EUR_USD": "0x326df4935006469f3d2b20009a25ec79c3a07510",
@@ -17,6 +17,6 @@
     "WETH": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
     "WBTC": "0xd3A691C852CDB01E281545A27064741F0B7f6825",
     "DAI": "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa",
-    "handleStartBlock": "25699010",
-    "oracleStartBlock": "25699811"
+    "handleStartBlock": "26303275",
+    "oracleStartBlock": "26281470"
 }
