@@ -35,5 +35,8 @@ cargo run -p graph-node --release -- \
 ```
 Ensure that the `graph-node` database is always clean (i.e. delete and recreate it) after restarting the local blockchain, otherwise indexing will fail.
 
+## Self-hosted subgraph
+If not deploying to the hosted service provided by The Graph's network, check out the [docker](./docker) directory.
+
 ## Important notes
 The `startBlock` value for the different mappings in `subgraph.yaml` can be the block at which the Handle contract was deployed for all mappings except for oracles, otherwise the indexer will fail. The oracle mappings should start at around 50 blocks after the Handle contract was deployed to prevent errors.

@@ -1,0 +1,65 @@
+﻿version: "2"
+services:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs:/etc/nginx/certs
+      - ./vhost:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+  nginx-proxy-acme:
+    image: nginxproxy/acme-companion
+    volumes_from:
+      - nginx-proxy:rw
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme:/etc/acme.sh
+    environment:
+      DEFAULT_EMAIL: "support@handle.fi"
+    depends_on:
+      - nginx-proxy
+  graph-node:
+    image: graphprotocol/graph-node
+    ports:
+      - "8001:8001"
+      - "8020:8020"
+      - "8030:8030"
+      - "8040:8040"
+    expose:
+      - "8000"
+    depends_on:
+      - ipfs
+      - postgres
+      - nginx-proxy-acme
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: "ipfs:5001"
+      ethereum: "rinkebyarbitrum:<RPC_NODE_URL>"
+      GRAPH_LOG: info
+      VIRTUAL_PORT: 8000
+      VIRTUAL_HOST: "rinkebyarbitrum.subgraph.handle.fi"
+      LETSENCRYPT_HOST: "rinkebyarbitrum.subgraph.handle.fi"
+      LETSENCRYPT_EMAIL: "support@handle.fi"
+  ipfs:
+    image: ipfs/go-ipfs:v0.4.23
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./data/ipfs:/data/ipfs
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/dat

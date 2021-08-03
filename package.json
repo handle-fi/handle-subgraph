@@ -9,10 +9,13 @@
     "build": "graph build",
     "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml && mustache config/kovan.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
     "prepare:local": "mustache config/hardhat.json subgraph.template.yaml > subgraph.yaml && mustache config/hardhat.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
+    "prepare:rinkebyarbitrum": "mustache config/rinkebyarbitrum.json subgraph.template.yaml > subgraph.yaml && mustache config/rinkebyarbitrum.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
     "create:local": "graph create handle-fi/handle-local --node http://127.0.0.1:8020",
+    "create:rinkebyarbitrum": "graph create handle-fi/handle-rinkebyarbitrum --node http://128.199.198.163:8020",
     "deploy:local": "graph deploy handle-fi/handle-local --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
-    "watch:local": "graph deploy handle-fi/handle-local --watch --debug --node http://127.0.0.1:8020/ --ipfs http://localhost:5001",
-    "deploy:kovan": "graph deploy handle-fi/handle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug"
+    "deploy:rinkebyarbitrum": "graph deploy handle-fi/handle-rinkebyarbitrum --debug --ipfs http://128.199.198.163:5001 --node http://128.199.198.163:8020",
+    "deploy:kovan": "graph deploy handle-fi/handle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug",
+    "watch:local": "graph deploy handle-fi/handle-local --watch --debug --node http://127.0.0.1:8020/ --ipfs http://localhost:5001"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.20.0",
