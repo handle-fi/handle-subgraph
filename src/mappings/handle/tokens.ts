@@ -9,7 +9,8 @@ import {
 } from "../../types/ETH_USD/Handle";
 import {CollateralToken, fxToken, TokenRegistry} from "../../types/schema";
 import { ERC20 } from "../../types/Handle/ERC20";
-import {updateTokenPrices} from "../oracle";
+import { updateTokenPrices } from "../oracle";
+import { getTokens } from "../oracleAddresses";
 
 const oneEth = BigInt.fromString("1000000000000000000");
 
@@ -31,12 +32,15 @@ const createCollateralTokenEntity = (address: Address, handle: Handle): Collater
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : ""
   entity.decimals = token.decimals();
-  // Set initial rate to 1 ether to prevent division by zero errors.
-  entity.rate = oneEth;
+  // Set initial rate to 1 ether if tx reverts to prevent division by zero errors.
+  const tryTokenRate = handle.try_getTokenPrice(address);
+  entity.rate = !tryTokenRate.reverted
+    ? tryTokenRate.value
+    : oneEth;
   return entity;
 };
 
-const createFxTokenEntity = (address: Address): fxToken => {
+const createFxTokenEntity = (address: Address, handle: Handle): fxToken => {
   const entity = new fxToken(address.toHex());
   const token = ERC20.bind(address);
   let symbolCall = token.try_symbol();
@@ -44,17 +48,20 @@ const createFxTokenEntity = (address: Address): fxToken => {
   entity.decimals = token.decimals();
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : "";
-  // Set initial rate to 1 ether to prevent division by zero errors.
-  entity.rate = oneEth;
+  // Set initial rate to 1 ether if tx reverts to prevent division by zero errors.
+  const tryTokenRate = handle.try_getTokenPrice(address);
+  entity.rate = !tryTokenRate.reverted
+    ? tryTokenRate.value
+    : oneEth;
   return entity;
 };
 
 export function handleFxTokenConfiguration (event: ConfigureFxTokenEvent): void {
   const address = event.params.fxToken;
-  // Load token entity.
-  const entity = fxToken.load(address.toHex()) || createFxTokenEntity(address);
-  // Set contract ata.
   const handle = Handle.bind(event.address);
+  // Load token entity.
+  const entity = fxToken.load(address.toHex()) || createFxTokenEntity(address, handle);
+  // Set contract ata.
   entity.isValid = handle.isFxTokenValid(address);
   entity.totalSupply = ERC20.bind(address).totalSupply();
   entity.save();
@@ -94,9 +101,10 @@ export function handleCollateralTokenConfiguration (event: ConfigureCollateralTo
     tokenRegistry.collateralTokens = collateralArray;
     tokenRegistry.save();
   }
-  // Also update token price.
+  // Also update all token prices.
+  // This is done to ensure everything is correctly set up.
   updateTokenPrices(
-    [address.toHex()],
+    getTokens(),
     ETH_USD_Handle.bind(address)
   );
 }
