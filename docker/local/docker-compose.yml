@@ -1,4 +1,4 @@
-﻿version: 2
+﻿version: "2"
 services:
   graph-node:
     image: graphprotocol/graph-node
@@ -11,18 +11,19 @@ services:
     depends_on:
       - ipfs
       - postgres
+      - docker-host
     environment:
       postgres_host: postgres
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
-      ipfs: 'ipfs:5001'
-      ethereum: 'rinkebyarbitrum:<HTTP_NODE_URL>'
+      ipfs: "ipfs:5001"
+      ethereum: "hardhat:http://docker-host:8545"
       GRAPH_LOG: info
   ipfs:
     image: ipfs/go-ipfs:v0.4.23
     ports:
-      - '5001:5001'
+      - "5001:5001"
     volumes:
       - ./data/ipfs:/data/ipfs
   postgres:
@@ -36,3 +37,9 @@ services:
       POSTGRES_DB: graph-node
     volumes:
       - ./data/postgres:/var/lib/postgresql/dat
+  docker-host:
+    image: qoomon/docker-host
+    cap_add: ["NET_ADMIN", "NET_RAW"]
+    restart: on-failure
+    environment:
+      - PORTS=8545
