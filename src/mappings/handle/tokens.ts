@@ -76,7 +76,7 @@ export function handleFxTokenConfiguration (event: ConfigureFxTokenEvent): void 
   // Also update token price.
   updateTokenPrices(
     [address.toHex()],
-    ETH_USD_Handle.bind(address)
+    ETH_USD_Handle.bind(event.address)
   );
 }
 
@@ -105,6 +105,6 @@ export function handleCollateralTokenConfiguration (event: ConfigureCollateralTo
   // This is done to ensure everything is correctly set up.
   updateTokenPrices(
     getTokens(),
-    ETH_USD_Handle.bind(address)
+    ETH_USD_Handle.bind(event.address)
   );
 }
