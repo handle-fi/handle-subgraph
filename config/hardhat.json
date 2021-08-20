@@ -17,6 +17,6 @@
     "WETH": "0x3cd1D3b3698470C159B7E62e07B7eA9095F5EF2b",
     "WBTC": "0xDb647Cf333ca91BDEbc10EC5B6Ba902092BaeE58",
     "DAI": "0x36C716C46307a936c835b1f9dF64d1117112bb2A",
-    "handleStartBlock": "0",
-    "oracleStartBlock": "0"
+    "handleStartBlock": "1",
+    "oracleStartBlock": "1"
 }
