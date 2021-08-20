@@ -10,6 +10,7 @@ import { Handle } from "../types/ETH_USD/Handle";
 import { Address } from '@graphprotocol/graph-ts';
 import { getVaultId, updateVault } from "./handle/vault";
 import { aggregatorToToken, getTokens, handleAddress } from "./oracleAddresses";
+import { log } from '@graphprotocol/graph-ts'
 
 /**
  * Listens to oracle price updates and updates the indexing of all Vault parameters.
@@ -17,6 +18,7 @@ import { aggregatorToToken, getTokens, handleAddress } from "./oracleAddresses";
  * liquidations and redemptions.
  */
 export function handleAnswerUpdated(event: AnswerUpdated): void {
+  log.info("handleAnswerUpdated", []);
   const handle = Handle.bind(handleAddress);
   const tokensToUpdate: string[] = aggregatorToToken(event.address.toHex()) != null
     ? [aggregatorToToken(event.address.toHex())]
@@ -25,6 +27,7 @@ export function handleAnswerUpdated(event: AnswerUpdated): void {
 }
 
 export function updateTokenPrices(tokens: string[], handle: Handle): void {
+  log.info("updateTokenPrices", []);
   const tokenRegistry = TokenRegistry.load(handleAddress.toHex());
   // Abort if the token registry was not created yet (before Handle deployment).
   if (tokenRegistry == null)
@@ -91,6 +94,8 @@ function updateVaultsByCollateralToken(collateralToken: Address, fxTokens: Addre
 function updateFxTokenRate(address: Address, handle: Handle): void {
   const entity = fxToken.load(address.toHex());
   if (entity == null) return;
+  if (handle.oracles(address) == Address.fromI32(0)) return;
+  if (!handle.isFxTokenValid(address)) return;
   const result = handle.try_getTokenPrice(address);
   if (result.reverted) return;
   entity.rate = result.value;
@@ -100,6 +105,8 @@ function updateFxTokenRate(address: Address, handle: Handle): void {
 function updateCollateralTokenRate(address: Address, handle: Handle): void {
   const entity = CollateralToken.load(address.toHex());
   if (entity == null) return;
+  if (handle.oracles(address) == Address.fromI32(0)) return;
+  if (!handle.isCollateralValid(address)) return;
   const result = handle.try_getTokenPrice(address);
   if (result.reverted) return;
   entity.rate = result.value;
