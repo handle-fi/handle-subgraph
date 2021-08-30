@@ -34,7 +34,7 @@ dataSources:
           handler: handleDebtUpdate
         - event: UpdateCollateral(indexed address,indexed address,indexed address)
           handler: handleCollateralUpdate
-        - event: ConfigureFxToken(indexed address)
+        - event: ConfigureFxToken(indexed address,bool)
           handler: handleFxTokenConfiguration
         - event: ConfigureCollateralToken(indexed address)
           handler: handleCollateralTokenConfiguration
