@@ -128,6 +128,7 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
+{{#AUD_USD}}
   - kind: ethereum/contract
     name: AUD_USD
     network: {{network}}
@@ -153,6 +154,35 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
+{{/AUD_USD}}
+{{#PHP_USD}}
+  - kind: ethereum/contract
+    name: PHP_USD
+    network: {{network}}
+    source:
+      address: "{{PHP_USD}}"
+      abi: AggregatorV3Interface
+      startBlock: {{oracleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/oracle.ts
+      entities:
+        - Vault
+        - VaultRegistry
+      abis:
+        - name: AggregatorV3Interface
+          file: ./abis/AggregatorV3Interface.json
+        - name: Handle
+          file: ./abis/Handle.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+{{/PHP_USD}}
+{{#EUR_USD}}
   - kind: ethereum/contract
     name: EUR_USD
     network: {{network}}
@@ -178,6 +208,8 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
+{{/EUR_USD}}
+{{#KRW_USD}}
   - kind: ethereum/contract
     name: KRW_USD
     network: {{network}}
@@ -203,6 +235,8 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
+{{/KRW_USD}}
+{{#CNY_USD}}
   - kind: ethereum/contract
     name: CNY_USD
     network: {{network}}
@@ -228,6 +262,8 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
+{{/CNY_USD}}
+{{#BTC_ETH}}
   - kind: ethereum/contract
     name: BTC_ETH
     network: {{network}}
@@ -253,6 +289,8 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
+{{/BTC_ETH}}
+{{#DAI_ETH}}
   - kind: ethereum/contract
     name: DAI_ETH
     network: {{network}}
@@ -278,3 +316,4 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
+{{/DAI_ETH}}

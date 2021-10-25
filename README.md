@@ -1,13 +1,29 @@
 ﻿# handle subgraph
 | Network | Subgraph URL |
 | --- | --- |
-| Mainnet | https://thegraph.com/explorer/subgraph/handle-fi/handle |  
+| Arbitrum one | https://thegraph.com/explorer/subgraph/handle-fi/handle |  
+| Arbitrum rinkeby | https://thegraph.com/explorer/subgraph/handle-fi/handle-rinkebyarbitrum |
 | Kovan | https://thegraph.com/explorer/subgraph/handle-fi/handle-kovan |
 
 ## Subgraph definition file
-This subgraph listens for events on the Handle, fxKeeperPool, PCT and oracle contracts.  
-See the table below for the oracle addresses listened to on Kovan.
+This subgraph listens for events on the Handle, fxKeeperPool, PCT and oracle contracts.
 
+### Oracles
+It is important to note that the chainlink oracle contract that emits events is the aggregator contract, and not the aggregator proxy.
+Therefore, only the aggregator contract addresses must be used when listening for oracle events.
+The address for the aggregator contract can be fetched if the proxy contract is known, by calling the `aggregator()` function.
+
+#### Arbitrum One
+| Oracle | Aggregator Proxy | Aggregator Contract |
+| --- | --- | --- |
+| ETH_USD | 0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612 | 0x3607e46698d218b3a5cae44bf381475c0a5e2ca7 |
+| AUD_USD | 0x9854e9a850e7C354c1de177eA953a6b1fba8Fc22 | 0x4258e5d50d737cbbea347f0115ad166e234902d7 |
+| PHP_USD | 0xfF82AAF635645fD0bcc7b619C3F28004cDb58574 | 0x5e4c65194f6f33a8bf7e9b95f1d0ca9d611f6d62 |
+
+#### Arbitrum Rinkeby
+Note: this deployment uses mock oracles and not real chainlink oracles.
+
+#### Kovan
 | Oracle | Aggregator Proxy | Aggregator Contract |
 | --- | --- | --- |
 | ETH_USD | 0x9326BFA02ADD2366b30bacB125260Af641031331 | 0x10b3c106c4ed7d22b0e7abe5dc43bdfa970a153c |

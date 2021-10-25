@@ -1,0 +1,14 @@
+{
+    "network": "arbitrum-one",
+    "handle": "0xA112D1bFd43fcFbF2bE2eBFcaebD6B6DB73aaD8B",
+    "fxKeeperPool": "0xc55204d4699dCce457DBF63d4B0074E6E1fa4412",
+    "PCT": "0x1746D5eC61C65b965dC8b4D66F3bCDb3b7f49608",
+    "ETH_USD": "0x3607e46698d218b3a5cae44bf381475c0a5e2ca7",
+    "AUD_USD": "0x4258e5d50d737cbbea347f0115ad166e234902d7",
+    "PHP_USD": "0x5e4c65194f6f33a8bf7e9b95f1d0ca9d611f6d62",
+    "fxAUD": "0x7E141940932E3D13bfa54B224cb4a16510519308",
+    "fxPHP": "0x3d147cD9aC957B2a5F968dE9d1c6B9d0872286a0",
+    "WETH": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+    "handleStartBlock": "2441278",
+    "oracleStartBlock": "2441278"
+}
