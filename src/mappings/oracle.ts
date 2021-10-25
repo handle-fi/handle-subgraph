@@ -47,12 +47,13 @@ export function updateTokenPrices(tokens: string[], handle: Handle): void {
 
   // Update all required vaults.
   for (let i = 0; i < tokens.length; i ++) {
+    if (tokens[i].length === 0) continue;
     const tokenAddress = Address.fromString(tokens[i]);
-    if (fxTokens.includes(tokenAddress)) {
+    if (fxTokens.includes(tokenAddress) && tokenAddress.length > 0) {
       updateFxTokenRate(tokenAddress, handle);
       updateVaultsByFxToken(tokenAddress);
     }
-    if (collateralTokens.includes(tokenAddress)) {
+    if (collateralTokens.includes(tokenAddress) && collateralTokens.length > 0) {
       updateCollateralTokenRate(tokenAddress, handle);
       updateVaultsByCollateralToken(tokenAddress, fxTokens);
     }
