@@ -17,7 +17,9 @@ export function getTokens(): string[] {
     // 5 DAI
     "{{DAI}}",
     // 7 fxCNY
-    "{{fxCNY}}"
+    "{{fxCNY}}",
+    // 8 fxPHP
+    "{{fxPHP}}"
   ];
 }
 
@@ -48,5 +50,8 @@ export function aggregatorToToken(aggregator: string): string | null {
   // CNY_USD -> fxCNY
   if (aggregator == "{{CNY_USD}}")
     return tokens[7];
+  // PHP_USD -> fxPHP
+  if (aggregator == "{{PHP_USD}}")
+    return tokens[8];
   return null;
 }
