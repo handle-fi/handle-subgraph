@@ -19,6 +19,8 @@ The address for the aggregator contract can be fetched if the proxy contract is 
 | ETH_USD | 0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612 | 0x3607e46698d218b3a5cae44bf381475c0a5e2ca7 |
 | AUD_USD | 0x9854e9a850e7C354c1de177eA953a6b1fba8Fc22 | 0x4258e5d50d737cbbea347f0115ad166e234902d7 |
 | PHP_USD | 0xfF82AAF635645fD0bcc7b619C3F28004cDb58574 | 0x5e4c65194f6f33a8bf7e9b95f1d0ca9d611f6d62 |
+| EUR_USD | 0xa14d53bc1f1c0f31b4aa3bd109344e5009051a84 | 0x5e4c65194f6f33a8bf7e9b95f1d0ca9d611f6d62 |
+| USD_USD | 0xd558Dd65583F7118F9ED921e8b94Ae3A295C83Bb | N/A (constant value)                       |
 
 #### Arbitrum Rinkeby
 Note: this deployment uses mock oracles and not real chainlink oracles.
