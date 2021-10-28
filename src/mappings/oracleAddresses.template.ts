@@ -19,7 +19,9 @@ export function getTokens(): string[] {
     // 7 fxCNY
     "{{fxCNY}}",
     // 8 fxPHP
-    "{{fxPHP}}"
+    "{{fxPHP}}",
+    // 9 fxUSD
+    "{{fxUSD}}",
   ];
 }
 
