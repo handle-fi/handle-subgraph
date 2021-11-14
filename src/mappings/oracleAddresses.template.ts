@@ -22,6 +22,8 @@ export function getTokens(): string[] {
     "{{fxPHP}}",
     // 9 fxUSD
     "{{fxUSD}}",
+    // 10 fxCHF
+    "{{fxCHF}}",
   ];
 }
 
@@ -55,5 +57,8 @@ export function aggregatorToToken(aggregator: string): string | null {
   // PHP_USD -> fxPHP
   if (aggregator == "{{PHP_USD}}")
     return tokens[8];
+  // KRW_USD -> fxKRW
+  if (aggregator == "{{KRW_USD}}")
+    return tokens[10];
   return null;
 }
