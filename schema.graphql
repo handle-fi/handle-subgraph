@@ -81,3 +81,38 @@ type pctPool @entity {
     protocolFee: BigInt!
     interfaces: [String!]!
 }
+
+type RewardPool @entity {
+    id: ID!
+    depositorCount: BigInt!
+    totalDeposits: BigInt!
+    weight: BigInt!
+    ratio: BigInt!
+    assetAddress: String!
+    assetType: BigInt!
+    S: BigInt!
+    whitelistedStakers: [String!]!
+    depositors: [RewardPoolDepositor!]! @derivedFrom(field: "rewardPool")
+}
+
+type RewardPoolDepositor @entity {
+    id: ID!
+    rewardPool: RewardPool!
+    user: String!
+    amount: BigInt!
+    S: BigInt!
+}
+
+type GovernanceLocker @entity {
+    id: ID!
+    amount: BigInt!
+    lockCreationDate: BigInt!
+    lockLastUpdatedDate: BigInt!
+    lockEndDate: BigInt!
+}
+
+type GovernanceLockedSupplyChange @entity {
+    id: ID!
+    supplyDifference: BigInt!
+    date: BigInt!
+}
