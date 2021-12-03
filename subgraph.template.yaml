@@ -143,6 +143,9 @@ dataSources:
       entities:
         - RewardPool
         - RewardPoolDepositor
+        - RewardPoolRegistry
+        - ForexDistribution
+        - ForexDistributionRateChange
       abis:
         - name: RewardPool
           file: ./abis/RewardPool.json
