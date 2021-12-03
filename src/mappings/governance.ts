@@ -1,22 +1,10 @@
-import {
-  ByteArray,
-  Address,
-  crypto, BigInt,
-} from '@graphprotocol/graph-ts';
-import { concat } from "../utils";
+import { BigInt } from '@graphprotocol/graph-ts';
 import {
   Deposit,
   Supply,
   Withdraw
 } from "../types/GovernanceLock/GovernanceLock";
 import {GovernanceLockedSupplyChange, GovernanceLocker} from "../types/schema";
-
-const getSupplyChangeId = (difference: BigInt, date: BigInt): string => (
-  crypto.keccak256(concat(
-    ByteArray.fromHexString(date.toHex()),
-    ByteArray.fromHexString(difference.toHex())
-  )).toHex()
-);
 
 const getGovernanceLocker = (address: string): GovernanceLocker => {
   let locker = GovernanceLocker.load(address);
@@ -36,7 +24,7 @@ const getSupplyChange = (
 ): GovernanceLockedSupplyChange => {
   // This will most likely always be null, but to prevent errors
   // this check is still present.
-  const id = getSupplyChangeId(difference, date);
+  const id = `${date.toHex()}_${difference.toHex()}`;
   let change = GovernanceLockedSupplyChange.load(id);
   if (change != null)
     return change as GovernanceLockedSupplyChange;
