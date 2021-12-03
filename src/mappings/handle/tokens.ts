@@ -11,8 +11,7 @@ import {CollateralToken, fxToken, TokenRegistry} from "../../types/schema";
 import { ERC20 } from "../../types/Handle/ERC20";
 import { updateTokenPrices } from "../oracle";
 import { getTokens } from "../oracleAddresses";
-
-const oneEth = BigInt.fromString("1000000000000000000");
+import {oneEth} from "../../utils";
 
 const getCreateTokenRegistry = (handle: Address): TokenRegistry => {
   let registry = TokenRegistry.load((handle.toHex()))
