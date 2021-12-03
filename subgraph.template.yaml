@@ -129,6 +129,43 @@ dataSources:
         - event: Supply(uint256,uint256)
           handler: handleSupply
   - kind: ethereum/contract
+    name: RewardPool
+    network: {{network}}
+    source:
+      address: "{{rewardPool}}"
+      abi: RewardPool
+      startBlock: {{handleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/rewardPool.ts
+      entities:
+        - RewardPool
+        - RewardPoolDepositor
+      abis:
+        - name: RewardPool
+          file: ./abis/RewardPool.json
+      eventHandlers:
+        - event: Claim(indexed address,uint256,uint256[],uint256[])
+          handler: handleClaim
+        - event: CreatePool(uint256,uint8,address,uint256)
+          handler: handleCreatePool
+        - event: ForexDistributed(uint256,uint256,uint256,uint256[],uint256[])
+          handler: handleForexDistributed
+        - event: PoolAliasChanged(uint256,bytes32)
+          handler: handlePoolALiasChanged
+        - event: SetForexDistributionRate(uint256)
+          handler: handleSetForexDistributionRate
+        - event: SetPoolWeights(uint256[],uint256[])
+          handler: handleSetPoolWeights 
+        - event: Stake(indexed address,uint256,uint256)
+          handler: handleStake
+        - event: Unstake(indexed address,uint256,uint256)
+          handler: handleUnstake
+        - event: WhitelistChanged(address,uint256,bool)
+          handler: handleWhitelistChanged
+  - kind: ethereum/contract
     name: ETH_USD
     network: {{network}}
     source:
