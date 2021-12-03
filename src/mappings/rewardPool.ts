@@ -13,9 +13,15 @@ import {
   RewardPool as RewardPoolContract,
   Claim,
   CreatePool,
-  ForexDistributed, PoolAliasChanged,
-  SetForexDistributionRate, SetFxTokenWeights, Stake, Unstake, WhitelistChanged
+  ForexDistributed,
+  PoolAliasChanged,
+  SetForexDistributionRate,
+  Stake,
+  Unstake,
+  WhitelistChanged,
+  SetPoolWeights
 } from "../types/RewardPool/RewardPool";
+import { log } from '@graphprotocol/graph-ts'
 
 const concatenateBigIntsIntoHex = (a: BigInt, b: BigInt): string => (
   crypto.keccak256(concat(
@@ -93,6 +99,7 @@ const getRewardPool = (id: BigInt): RewardPool => {
   let pool = RewardPool.load(id.toHex());
   if (pool != null)
     return pool as RewardPool;
+  pool = new RewardPool(id.toHex());
   pool.totalDeposits = BigInt.fromI32(0);
   pool.weight = BigInt.fromI32(0);
   pool.ratio = BigInt.fromI32(0);
@@ -118,6 +125,7 @@ const updatePoolRatios = (contractAddress: string): void => {
 };
 
 export function handleCreatePool(event: CreatePool): void {
+  log.info("RewardPool: handleCreatePool", []);
   const rewardPool = getRewardPool(event.params.id);
   rewardPool.assetType = BigInt.fromI32(event.params.assetType);
   rewardPool.assetAddress = event.params.asset.toHex();
@@ -131,6 +139,7 @@ export function handleCreatePool(event: CreatePool): void {
 }
 
 export function handleForexDistributed(event: ForexDistributed): void {
+  log.info("RewardPool: handleForexDistributed", []);
   // Update total forex distributed value.
   const registry = getRewardPoolRegistry(event.address.toHex());
   registry.totalForexDistributed = registry.totalForexDistributed
@@ -158,6 +167,7 @@ export function handleForexDistributed(event: ForexDistributed): void {
 export function handleSetForexDistributionRate(
   event: SetForexDistributionRate
 ): void {
+  log.info("RewardPool: handleSetForexDistributionRate", []);
   // Create change entity.
   const change = getForexDistributionChange(
     event.address.toHex(),
@@ -173,7 +183,8 @@ export function handleSetForexDistributionRate(
   registry.save();
 }
 
-function handlePoolAliasChanged(event: PoolAliasChanged): void {
+export function handlePoolAliasChanged(event: PoolAliasChanged): void {
+  log.info("RewardPool: handlePoolAliasChanged", []);
   const pool = getRewardPool(event.params.poolId);
   const aliases = pool.aliases;
   const hash = event.params.aliasHash.toHex();
@@ -187,7 +198,8 @@ function handlePoolAliasChanged(event: PoolAliasChanged): void {
   pool.save();
 }
 
-function handleWhitelistChanged(event: WhitelistChanged): void {
+export function handleWhitelistChanged(event: WhitelistChanged): void {
+  log.info("RewardPool: handleWhitelistChanged", []);
   const pool = getRewardPool(event.params.poolId);
   const whitelist = pool.whitelistedStakers;
   const enabling = event.params.whitelisted;
@@ -204,11 +216,13 @@ function handleWhitelistChanged(event: WhitelistChanged): void {
   pool.save();
 }
 
-function handleSetPoolWeights(event: SetFxTokenWeights): void {
+export function handleSetPoolWeights(event: SetPoolWeights): void {
+  log.info("RewardPool: handleSetPoolWeights", []);
   updatePoolRatios(event.address.toHex());
 }
 
-function handleStake(event: Stake): void {
+export function handleStake(event: Stake): void {
+  log.info("RewardPool: handleStake", []);
   // Update depositor params.
   const depositor = getDepositor(
     event.address.toHex(),
@@ -223,7 +237,8 @@ function handleStake(event: Stake): void {
   pool.save();
 }
 
-function handleUnstake(event: Unstake): void {
+export function handleUnstake(event: Unstake): void {
+  log.info("RewardPool: handleUnstake", []);
   // Update depositor params.
   const depositor = getDepositor(
     event.address.toHex(),
@@ -238,7 +253,8 @@ function handleUnstake(event: Unstake): void {
   pool.save();
 }
 
-function handleClaim(event: Claim): void {
+export function handleClaim(event: Claim): void {
+  log.info("RewardPool: handleClaim", []);
   // Update depositor params.
   const amounts = event.params.amounts;
   const poolIds = event.params.poolIds;
