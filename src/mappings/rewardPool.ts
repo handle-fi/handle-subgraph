@@ -48,7 +48,7 @@ const getForexDistributionChange = (
   amount: BigInt,
   date: BigInt
 ): ForexDistributionRateChange => {
-  const id = `${contractAddress}_${concatenateBigIntsIntoHex(date, amount)}`;
+  const id = contractAddress + "_" + concatenateBigIntsIntoHex(date, amount);
   let entity = ForexDistributionRateChange.load(id);
   if (entity != null)
     return entity as ForexDistributionRateChange;
@@ -64,7 +64,7 @@ const getDepositor = (
   account: string,
   poolId: BigInt
 ): RewardPoolDepositor => {
-  const id = `${account}_${poolId.toHex()}`;
+  const id = account + "_" + poolId.toHex();
   let entity = RewardPoolDepositor.load(id);
   if (entity != null)
     return entity as RewardPoolDepositor;
@@ -82,8 +82,8 @@ const getForexDistribution = (
   amount: BigInt,
   date: BigInt
 ): ForexDistribution => {
-  const prefix = `${contractAddress}_${poolId.toHex()}`;
-  const id = `${prefix}_${concatenateBigIntsIntoHex(date, amount)}`;
+  const prefix = contractAddress + "_" + poolId.toHex();
+  const id = prefix + "_" + concatenateBigIntsIntoHex(date, amount);
   let entity = ForexDistribution.load(id);
   if (entity != null)
     return entity as ForexDistribution;

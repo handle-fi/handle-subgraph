@@ -24,7 +24,7 @@ const getSupplyChange = (
 ): GovernanceLockedSupplyChange => {
   // This will most likely always be null, but to prevent errors
   // this check is still present.
-  const id = `${date.toHex()}_${difference.toHex()}`;
+  const id = date.toHex() + "_" + difference.toHex();
   let change = GovernanceLockedSupplyChange.load(id);
   if (change != null)
     return change as GovernanceLockedSupplyChange;
@@ -34,9 +34,8 @@ const getSupplyChange = (
   return change as GovernanceLockedSupplyChange;
 };
 
-
 export function handleDeposit(event: Deposit): void {
-  const locker = getGovernanceLocker(event.address.toHex());
+  const locker = getGovernanceLocker(event.params.depositor.toHex());
   if (locker.amount.equals(BigInt.fromI32(0)))
     locker.lockCreationDate = event.block.timestamp;
   locker.amount = locker.amount.plus(event.params.value);
@@ -45,7 +44,7 @@ export function handleDeposit(event: Deposit): void {
 }
 
 export function handleWithdraw(event: Withdraw): void {
-  const locker = getGovernanceLocker(event.address.toHex());
+  const locker = getGovernanceLocker(event.params.depositor.toHex());
   const zero = BigInt.fromI32(0);
   locker.amount = zero;
   locker.lockCreationDate = zero;
