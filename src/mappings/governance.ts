@@ -39,6 +39,7 @@ export function handleDeposit(event: Deposit): void {
   if (locker.amount.equals(BigInt.fromI32(0)))
     locker.lockCreationDate = event.block.timestamp;
   locker.amount = locker.amount.plus(event.params.value);
+  locker.lockEndDate = event.params.locktime;
   locker.lockLastUpdatedDate = event.block.timestamp;
   locker.save();
 }
