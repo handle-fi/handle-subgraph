@@ -1,8 +1,5 @@
-import {
-  ByteArray,
-  crypto, BigInt, Address,
-} from '@graphprotocol/graph-ts';
-import {concat, oneEth} from "../utils";
+import { BigInt, Address } from '@graphprotocol/graph-ts';
+import { oneEth } from "../utils";
 import {
   ForexDistribution,
   ForexDistributionRateChange,
@@ -23,13 +20,6 @@ import {
 } from "../types/RewardPool/RewardPool";
 import { log } from '@graphprotocol/graph-ts'
 
-const concatenateBigIntsIntoHex = (a: BigInt, b: BigInt): string => (
-  crypto.keccak256(concat(
-    ByteArray.fromHexString(a.toHex()),
-    ByteArray.fromHexString(b.toHex())
-  )).toHex()
-);
-
 const getRewardPoolRegistry = (contractAddress: string): RewardPoolRegistry => {
   let registry = RewardPoolRegistry.load(contractAddress);
   if (registry != null)
@@ -48,7 +38,7 @@ const getForexDistributionChange = (
   amount: BigInt,
   date: BigInt
 ): ForexDistributionRateChange => {
-  const id = contractAddress + "_" + concatenateBigIntsIntoHex(date, amount);
+  const id = contractAddress + "_" + date.toHex() + "_" + amount.toHex();
   let entity = ForexDistributionRateChange.load(id);
   if (entity != null)
     return entity as ForexDistributionRateChange;
@@ -83,7 +73,7 @@ const getForexDistribution = (
   date: BigInt
 ): ForexDistribution => {
   const prefix = contractAddress + "_" + poolId.toHex();
-  const id = prefix + "_" + concatenateBigIntsIntoHex(date, amount);
+  const id = prefix + "_" + date.toHex() + "_" + amount.toHex();
   let entity = ForexDistribution.load(id);
   if (entity != null)
     return entity as ForexDistribution;
