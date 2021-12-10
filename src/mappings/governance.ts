@@ -15,6 +15,8 @@ const getGovernanceLocker = (address: string): GovernanceLocker => {
   locker.lockCreationDate = BigInt.fromI32(0);
   locker.lockLastUpdatedDate = BigInt.fromI32(0);
   locker.amount = BigInt.fromI32(0);
+  locker.updateCount = BigInt.fromI32(0);
+  locker.withdrawCount = BigInt.fromI32(0);
   return locker as GovernanceLocker;
 };
 
@@ -31,6 +33,7 @@ const getSupplyChange = (
   change = new GovernanceLockedSupplyChange(id);
   change.supplyDifference = BigInt.fromI32(0);
   change.date = BigInt.fromI32(0);
+  change.triggeredBy = "";
   return change as GovernanceLockedSupplyChange;
 };
 
@@ -41,6 +44,10 @@ export function handleDeposit(event: Deposit): void {
   locker.amount = locker.amount.plus(event.params.value);
   locker.lockEndDate = event.params.locktime;
   locker.lockLastUpdatedDate = event.block.timestamp;
+  // Deposit may either increase lock time or amount, and may be called
+  // multiple times during lock duration, justifying why this variable is
+  // not called depositCount.
+  locker.updateCount = locker.updateCount.plus(BigInt.fromI32(1));
   locker.save();
 }
 
@@ -51,6 +58,8 @@ export function handleWithdraw(event: Withdraw): void {
   locker.lockCreationDate = zero;
   locker.lockEndDate = zero;
   locker.lockLastUpdatedDate = event.block.timestamp;
+  locker.updateCount = BigInt.fromI32(0);
+  locker.withdrawCount = locker.withdrawCount.plus(BigInt.fromI32(1));
   locker.save();
 }
 
@@ -59,5 +68,6 @@ export function handleSupply(event: Supply): void {
   const change = getSupplyChange(difference, event.block.timestamp);
   change.supplyDifference = difference;
   change.date = event.block.timestamp;
+  change.triggeredBy = event.transaction.from.toHex();
   change.save();
 }

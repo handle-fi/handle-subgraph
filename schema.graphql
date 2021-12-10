@@ -133,10 +133,13 @@ type GovernanceLocker @entity {
     lockCreationDate: BigInt!
     lockLastUpdatedDate: BigInt!
     lockEndDate: BigInt!
+    updateCount: BigInt!
+    withdrawCount: BigInt!
 }
 
 type GovernanceLockedSupplyChange @entity {
     id: ID!
     supplyDifference: BigInt!
     date: BigInt!
+    triggeredBy: String!
 }
