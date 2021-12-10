@@ -1,4 +1,6 @@
-﻿import { ByteArray } from '@graphprotocol/graph-ts';
+﻿import {BigInt, ByteArray} from '@graphprotocol/graph-ts';
+
+export const oneEth = BigInt.fromString("1000000000000000000");
 
 /**
  * Concatenates two byte arrays.

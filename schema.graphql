@@ -81,3 +81,65 @@ type pctPool @entity {
     protocolFee: BigInt!
     interfaces: [String!]!
 }
+
+type RewardPoolRegistry @entity {
+    id: ID!
+    poolCount: BigInt!
+    totalWeight: BigInt!
+    totalForexDistributed: BigInt!
+    currentDistributionRatePerSecond: BigInt!
+    forexDistributionChange: [ForexDistributionRateChange!]! @derivedFrom(field: "poolRegistry")
+}
+
+type ForexDistribution @entity {
+    id: ID!
+    rewardPool: RewardPool!
+    distributionRatePerSecond: BigInt!
+    amount: BigInt!
+    date: BigInt!
+}
+
+type ForexDistributionRateChange @entity {
+    id: ID!
+    poolRegistry: RewardPoolRegistry!
+    date: BigInt!
+    ratePerSecond: BigInt!
+}
+
+type RewardPool @entity {
+    id: ID!
+    totalDeposits: BigInt!
+    weight: BigInt!
+    ratio: BigInt!
+    assetAddress: String!
+    assetType: BigInt!
+    whitelistedStakers: [String!]!
+    aliases: [String!]!
+    depositors: [RewardPoolDepositor!]! @derivedFrom(field: "rewardPool")
+    distributions: [ForexDistribution!]! @derivedFrom(field: "rewardPool")
+}
+
+type RewardPoolDepositor @entity {
+    id: ID!
+    amount: BigInt!
+    account: String!
+    rewardPool: RewardPool!
+    totalClaimed: BigInt!
+}
+
+type GovernanceLocker @entity {
+    id: ID!
+    amount: BigInt!
+    lockCreationDate: BigInt!
+    lockLastUpdatedDate: BigInt!
+    lockEndDate: BigInt!
+    updateCount: BigInt!
+    withdrawCount: BigInt!
+}
+
+type GovernanceLockedSupplyChange @entity {
+    id: ID!
+    supplyDifference: BigInt!
+    date: BigInt!
+    triggeredBy: String!
+}

@@ -104,6 +104,71 @@ dataSources:
         - event: ProtocolDepositFunds(indexed address,indexed address,uint256)
           handler: handleProtocolDepositFunds
   - kind: ethereum/contract
+    name: GovernanceLock
+    network: {{network}}
+    source:
+      address: "{{governanceLock}}"
+      abi: GovernanceLock
+      startBlock: {{governanceStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/governance.ts
+      entities:
+        - GovernanceLocker
+        - GovernanceLockedSupplyChange
+      abis:
+        - name: GovernanceLock
+          file: ./abis/GovernanceLock.json
+      eventHandlers:
+        - event: Deposit(indexed address,uint256,indexed uint256,uint8,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,uint256,uint256)
+          handler: handleWithdraw
+        - event: Supply(uint256,uint256)
+          handler: handleSupply
+  - kind: ethereum/contract
+    name: RewardPool
+    network: {{network}}
+    source:
+      address: "{{rewardPool}}"
+      abi: RewardPool
+      startBlock: {{handleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/rewardPool.ts
+      entities:
+        - RewardPool
+        - RewardPoolDepositor
+        - RewardPoolRegistry
+        - ForexDistribution
+        - ForexDistributionRateChange
+      abis:
+        - name: RewardPool
+          file: ./abis/RewardPool.json
+      eventHandlers:
+        - event: Claim(indexed address,uint256,uint256[],uint256[])
+          handler: handleClaim
+        - event: CreatePool(uint256,uint8,address,uint256)
+          handler: handleCreatePool
+        - event: ForexDistributed(uint256,uint256,uint256,uint256[],uint256[])
+          handler: handleForexDistributed
+        - event: PoolAliasChanged(uint256,bytes32)
+          handler: handlePoolAliasChanged
+        - event: SetForexDistributionRate(uint256)
+          handler: handleSetForexDistributionRate
+        - event: SetPoolWeights(uint256[],uint256[])
+          handler: handleSetPoolWeights 
+        - event: Stake(indexed address,uint256,uint256)
+          handler: handleStake
+        - event: Unstake(indexed address,uint256,uint256)
+          handler: handleUnstake
+        - event: WhitelistChanged(address,uint256,bool)
+          handler: handleWhitelistChanged
+  - kind: ethereum/contract
     name: ETH_USD
     network: {{network}}
     source:
@@ -155,6 +220,33 @@ dataSources:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
 {{/AUD_USD}}
+{{#FOREX_USD}}
+  - kind: ethereum/contract
+    name: FOREX_USD
+    network: {{network}}
+    source:
+      address: "{{FOREX_USD}}"
+      abi: AggregatorV3Interface
+      startBlock: {{oracleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/oracle.ts
+      entities:
+        - Vault
+        - VaultRegistry
+      abis:
+        - name: AggregatorV3Interface
+          file: ./abis/AggregatorV3Interface.json
+        - name: Handle
+          file: ./abis/Handle.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+{{/FOREX_USD}}
 {{#PHP_USD}}
   - kind: ethereum/contract
     name: PHP_USD
