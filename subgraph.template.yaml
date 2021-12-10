@@ -220,6 +220,33 @@ dataSources:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
 {{/AUD_USD}}
+{{#FOREX_USD}}
+  - kind: ethereum/contract
+    name: FOREX_USD
+    network: {{network}}
+    source:
+      address: "{{FOREX_USD}}"
+      abi: AggregatorV3Interface
+      startBlock: {{oracleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/oracle.ts
+      entities:
+        - Vault
+        - VaultRegistry
+      abis:
+        - name: AggregatorV3Interface
+          file: ./abis/AggregatorV3Interface.json
+        - name: Handle
+          file: ./abis/Handle.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+{{/FOREX_USD}}
 {{#PHP_USD}}
   - kind: ethereum/contract
     name: PHP_USD
