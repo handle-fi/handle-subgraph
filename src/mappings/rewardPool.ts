@@ -61,7 +61,7 @@ const getDepositor = (
   entity = new RewardPoolDepositor(id);
   entity.amount = BigInt.fromI32(0);
   entity.account = account;
-  entity.rewardPool = contractAddress;
+  entity.rewardPool = poolId.toHex();
   entity.totalClaimed = BigInt.fromI32(0);
   return entity as RewardPoolDepositor;
 };
@@ -78,7 +78,7 @@ const getForexDistribution = (
   if (entity != null)
     return entity as ForexDistribution;
   entity = new ForexDistribution(id);
-  entity.rewardPool = contractAddress;
+  entity.rewardPool = poolId.toHex();
   entity.distributionRatePerSecond = BigInt.fromI32(0);
   entity.amount = BigInt.fromI32(0);
   entity.date = BigInt.fromI32(0);
