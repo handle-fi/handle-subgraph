@@ -143,3 +143,13 @@ type GovernanceLockedSupplyChange @entity {
     date: BigInt!
     triggeredBy: String!
 }
+
+type Transform @entity {
+    id: ID!
+    date: BigInt!
+    account: String!
+    tokenIn: String!
+    tokenOut: String!
+    amountIn: BigInt!
+    amountOut: BigInt!
+}
