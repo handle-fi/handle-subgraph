@@ -169,6 +169,26 @@ dataSources:
         - event: WhitelistChanged(address,uint256,bool)
           handler: handleWhitelistChanged
   - kind: ethereum/contract
+    name: Transformer
+    network: {{network}}
+    source:
+      address: "{{fxTransformer}}"
+      abi: fxTransformer
+      startBlock: {{handleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/transformer.ts
+      entities:
+        - Transform
+      abis:
+        - name: fxTransformer
+          file: ./abis/fxTransformer.json
+      eventHandlers:
+        - event: Transform(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransform
+  - kind: ethereum/contract
     name: ETH_USD
     network: {{network}}
     source:
