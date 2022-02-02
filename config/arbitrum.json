@@ -3,7 +3,7 @@
     "handle": "0xA112D1bFd43fcFbF2bE2eBFcaebD6B6DB73aaD8B",
     "fxKeeperPool": "0xc55204d4699dCce457DBF63d4B0074E6E1fa4412",
     "PCT": "0x1746D5eC61C65b965dC8b4D66F3bCDb3b7f49608",
-    "governanceLock": "0x1f75Cb1e06987637f7728Df47C0002a6411c4411",
+    "governanceLock": "0xC6008E6baD8c2c0814A32f6F494fa419E95593b6",
     "rewardPool": "0xDE17Af0E4A6c870762508DcB7dCc20719584CBd0",
     "forex": "0xdb298285fe4c5410b05390ca80e8fbe9de1f259b",
     "fxTransformer": "0x6a67CB66B928629DE164d7CE55fB1Bd77F31e553",
@@ -25,5 +25,5 @@
     "WETH": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
     "handleStartBlock": "2441278",
     "oracleStartBlock": "2441278",
-    "governanceStartBlock": "3315606"
+    "governanceStartBlock": "5332267"
 }
