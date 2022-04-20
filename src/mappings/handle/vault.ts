@@ -7,10 +7,8 @@
 import {
   UpdateCollateral as UpdateCollateralEvent,
   UpdateDebt as UpdateDebtEvent,
-  Handle
 } from "../../types/Handle/Handle";
 import {Vault, VaultCollateral, CollateralToken, fxToken, VaultRegistry} from "../../types/schema";
-import { VaultLibrary } from "../../types/Handle/VaultLibrary";
 import {concat} from "../../utils";
 import { ERC20 } from "../../types/Handle/ERC20";
 
@@ -46,13 +44,6 @@ const createVaultEntity = (
   const vault = new Vault(id);
   vault.fxToken = fxToken.toHex();
   vault.account = account.toHex();
-  vault.debt = zero;
-  vault.collateralAsEther = zero;
-  vault.collateralRatio = zero;
-  vault.minimumRatio = zero;
-  vault.redeemableTokens = zero;
-  vault.isRedeemable = false;
-  vault.isLiquidatable = false;
   vault.collateralAddresses = [];
   return vault;
 };
@@ -73,64 +64,6 @@ const calculateTokensRequiredForCrIncrease = (
   const nominator = crTarget.times(debtAsEther).minus(collateralAsEther.times(oneEth));
   const denominator = crTarget.minus(collateralReturnRatio);
   return nominator.div(denominator);
-};
-
-export const updateVault = (
-  vault: Vault,
-  handleAddress: Address,
-  account: Address,
-  fxToken: Address
-): Vault => {
-  const handle = Handle.bind(handleAddress);
-  const vaultLibrary = VaultLibrary.bind(handle.vaultLibrary());
-  const tokenPrice = handle.getTokenPrice(fxToken);
-  // Attempt to fetch debt and debt as ETH.
-  const tryDebt = handle.try_getDebt(account, fxToken);
-  const tryDebtAsEth = vaultLibrary.try_getDebtAsEth(account, fxToken);
-  // Assign valid values whether transaction reverted or not.
-  vault.debt = !tryDebt.reverted ? tryDebt.value : vault.debt;
-  const debtAsEth = !tryDebtAsEth.reverted
-    ? tryDebtAsEth.value
-    : vault.debt.times(tokenPrice).div(oneEth);
-  vault.collateralAsEther = vaultLibrary.getTotalCollateralBalanceAsEth(account, fxToken);
-  vault.collateralRatio = debtAsEth.gt(zero)
-    ? vault.collateralAsEther.times(oneEth).div(debtAsEth)
-    : zero;
-  vault.minimumRatio = vaultLibrary.getMinimumRatio(account, fxToken);
-  vault.isRedeemable = (
-    vault.collateralRatio.lt(vault.minimumRatio) &&
-    vault.collateralRatio.ge(oneEth) &&
-    vault.collateralAsEther.gt(zero) &&
-    vault.debt.gt(zero)
-  );
-  let liquidationRatio = vault.minimumRatio
-        .times(liquidationPercentage)
-        .div(BigInt.fromString("100"));
-  if (liquidationRatio.lt(minimumLiquidationRatio))
-    liquidationRatio = minimumLiquidationRatio;
-  vault.isLiquidatable = (
-    vault.isRedeemable &&
-    vault.collateralRatio.lt(liquidationRatio)
-  );
-  if (vault.isRedeemable) {
-    const redeemableAsEther = calculateTokensRequiredForCrIncrease(
-      vault.minimumRatio,
-      debtAsEth,
-      vault.collateralAsEther,
-      oneEth // no fees for redemption.
-    );
-    // Convert to fxToken currency.
-    vault.redeemableTokens = vault.isRedeemable
-      ? redeemableAsEther.times(oneEth).div(tokenPrice)
-      : zero;
-    // If redeemable amount is greater than debt, cap the value, although this is a critical issue.
-    if (vault.redeemableTokens.gt(vault.debt))
-      vault.redeemableTokens = vault.debt;
-  } else if (vault.redeemableTokens.gt(zero)) {
-    // Clear redeemable amount.
-    vault.redeemableTokens = zero;
-  }
-  return vault;
 };
 
 const getCreateVaultCollateral = (
@@ -164,14 +97,12 @@ export function handleDebtUpdate (event: UpdateDebtEvent): void {
     event.params.account,
     event.params.fxToken
   );
-  vault = updateVault(vault as Vault, event.address, event.params.account, event.params.fxToken);
+  const handleContract = Handle.bind()
+  const tryDebt = handle.try_getDebt(account, fxToken);
+  const tryDebtAsEth = vaultLibrary.try_getDebtAsEth(account, fxToken);
+  // Assign valid values whether transaction reverted or not.
+  vault.debt = !tryDebt.reverted ? tryDebt.value : vault.debt;
   vault.save();
-  // Update fxToken total supply.
-  const token = fxToken.load(event.params.fxToken.toHex());
-  if (token != null) {
-    token.totalSupply = ERC20.bind(event.params.fxToken).totalSupply();
-    token.save();
-  }
   // Add account to vaultOwners array if needed.
   const vaultRegistry = getCreateVaultRegistry(event.params.fxToken);
   const ownersArray = vaultRegistry.owners;
@@ -192,9 +123,7 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     account,
     fxToken
   );
-  vault = updateVault(vault as Vault, event.address, account, fxToken);
-  // Add or remove collateral token address to array.
-  const handle = Handle.bind(event.address);
+  event.params.
   const collateralBalance = handle.getCollateralBalance(account, collateralAddress, fxToken);
   const addresses = vault.collateralAddresses;
   const hasCollateral = addresses.includes(collateralAddress.toHex());
