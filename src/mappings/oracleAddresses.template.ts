@@ -29,6 +29,8 @@ export function getTokens(): string[] {
   ];
 }
 
+export const fxUsdAddress: string = getTokens()[9];
+
 /**
  * The WASM compiler doesn't seem to like dictionaries or switches, so it's needed to wrap it in
  * a function using if statements.

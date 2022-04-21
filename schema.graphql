@@ -6,8 +6,12 @@ type CollateralToken @entity {
     mintCollateralRatio: BigInt!
     liquidationFee: BigInt!
     interestRate: BigInt!
-    isValid: Boolean!
     rate: BigInt!
+}
+
+type ChainlinkRate @entity {
+    id: ID!
+    value: BigInt!
 }
 
 type fxToken @entity {
@@ -24,8 +28,15 @@ type Vault @entity {
     account: String!
     fxToken: String!
     debt: BigInt!
+    debtAsEther: BigInt!
+    collateralAsEther: BigInt!
+    collateralRatio: BigInt!
     collateralTokens: [VaultCollateral!]! @derivedFrom(field: "vault")
     collateralAddresses: [String!]!
+    redeemableTokens: BigInt!
+    minimumRatio: BigInt!
+    isRedeemable: Boolean!
+    isLiquidatable: Boolean!
 }
 
 type VaultRegistry @entity {
