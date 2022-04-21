@@ -5,19 +5,15 @@
   crypto,
 } from '@graphprotocol/graph-ts';
 import {
+  Handle,
   UpdateCollateral as UpdateCollateralEvent,
   UpdateDebt as UpdateDebtEvent,
 } from "../../types/Handle/Handle";
-import {Vault, VaultCollateral, CollateralToken, fxToken, VaultRegistry} from "../../types/schema";
+import {Vault, VaultCollateral, VaultRegistry} from "../../types/schema";
 import {concat} from "../../utils";
-import { ERC20 } from "../../types/Handle/ERC20";
 
 const oneEth = BigInt.fromString("1000000000000000000");
 const zero = BigInt.fromString("0");
-const liquidationPercentage = BigInt.fromString("80");
-const minimumLiquidationRatio = oneEth
-  .times(BigInt.fromString("110"))
-  .div(BigInt.fromString("100")); // 110%
 
 export const getVaultId = (account: Address, fxToken: Address): string => (
   crypto.keccak256(concat(
@@ -97,11 +93,11 @@ export function handleDebtUpdate (event: UpdateDebtEvent): void {
     event.params.account,
     event.params.fxToken
   );
-  const handleContract = Handle.bind()
-  const tryDebt = handle.try_getDebt(account, fxToken);
-  const tryDebtAsEth = vaultLibrary.try_getDebtAsEth(account, fxToken);
-  // Assign valid values whether transaction reverted or not.
-  vault.debt = !tryDebt.reverted ? tryDebt.value : vault.debt;
+  const handleContract = Handle.bind(event.address);
+  const tryDebt = handleContract
+    .try_getDebt(event.params.account, event.params.fxToken);
+  if (!tryDebt.reverted)
+    vault.debt = tryDebt.value;
   vault.save();
   // Add account to vaultOwners array if needed.
   const vaultRegistry = getCreateVaultRegistry(event.params.fxToken);
@@ -123,8 +119,9 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     account,
     fxToken
   );
-  event.params.
-  const collateralBalance = handle.getCollateralBalance(account, collateralAddress, fxToken);
+  const handleContract = Handle.bind(event.address);
+  const collateralBalance = handleContract
+    .getCollateralBalance(account, collateralAddress, fxToken);
   const addresses = vault.collateralAddresses;
   const hasCollateral = addresses.includes(collateralAddress.toHex());
   if (collateralBalance.equals(zero) && hasCollateral) {
@@ -140,17 +137,6 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     vault as Vault,
     collateralAddress
   );
-  vaultCollateral.amount = handle.getCollateralBalance(
-    account,
-    collateralAddress,
-    fxToken
-  );
+  vaultCollateral.amount = collateralBalance;
   vaultCollateral.save();
-  // Update collateral balance.
-  // Update fxToken total supply.
-  const token = CollateralToken.load(collateralAddress.toHex());
-  if (token != null) {
-    token.totalBalance = handle.totalBalances(collateralAddress);
-    token.save();
-  }
 }
