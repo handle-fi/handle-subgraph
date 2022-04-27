@@ -9,12 +9,13 @@ import {Address, BigInt} from '@graphprotocol/graph-ts';
 import {
   aggregatorToToken, fxUsdAddress,
   getTokens,
-  handleAddress
+  handleAddress, wethAddress
 } from "./oracleAddresses";
 import { log } from '@graphprotocol/graph-ts'
 import {getVaultId, updateVaultPriceDerivedProperties} from "./handle/vault";
 
 const ONE_ETH = BigInt.fromI32(10).pow(18);
+const CHAINLINK_PRICE_UNIT = BigInt.fromI32(10).pow(8);
 
 /**
  * Listens to oracle price updates.
@@ -105,9 +106,14 @@ function updateFxTokenRate(
 ): void {
   const entity = fxToken.load(address.toHex());
   if (entity == null) return;
-  entity.rate = chainlinkTokenUsdRate
-    .times(ONE_ETH)
-    .div(chainlinkEthUsdRate);
+  if (address.toHex() === fxUsdAddress) {
+    entity.rate = ONE_ETH
+      .times(CHAINLINK_PRICE_UNIT).div(chainlinkTokenUsdRate);
+  } else {
+    entity.rate = chainlinkTokenUsdRate
+      .times(ONE_ETH)
+      .div(chainlinkEthUsdRate);
+  }
   entity.save();
 }
 
@@ -118,8 +124,13 @@ function updateCollateralTokenRate(
 ): void {
   const entity = CollateralToken.load(address.toHex());
   if (entity == null) return;
-  entity.rate = chainlinkTokenUsdRate
-    .times(ONE_ETH)
-    .div(chainlinkEthUsdRate);
+  if (address.toHex() === wethAddress) {
+    entity.rate = ONE_ETH;
+  } else {
+    // TODO this is most likely wrong, as collateral is curency/ETH, not /USD.
+    entity.rate = chainlinkTokenUsdRate
+      .times(ONE_ETH)
+      .div(chainlinkEthUsdRate);
+  }
   entity.save();
 }

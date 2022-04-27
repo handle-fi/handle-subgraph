@@ -5,7 +5,6 @@ import {
 } from "../../types/Handle/Handle";
 import {CollateralToken, fxToken, TokenRegistry} from "../../types/schema";
 import { ERC20 } from "../../types/Handle/ERC20";
-import {fxUsdAddress} from "../oracleAddresses";
 
 const getCreateTokenRegistry = (handle: Address): TokenRegistry => {
   let registry = TokenRegistry.load((handle.toHex()))
