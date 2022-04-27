@@ -2,34 +2,32 @@ import {Address} from "@graphprotocol/graph-ts/index";
 
 export const handleAddress = Address.fromString("{{handle}}");
 
+// Address strings are constructed here as Address.fromString(x).toHex() because that makes them lowercase.
+// This is important to keep in case the API ever changes so nothing breaks, and case sensitivity is accounted for.
 export function getTokens(): string[] {
   return [
     // 0 fxAUD
-    "{{fxAUD}}",
+    Address.fromString("{{fxAUD}}").toHex(),
     // 1 fxEUR
-    "{{fxEUR}}",
+    Address.fromString("{{fxEUR}}").toHex(),
     // 2 fxKRW
-    "{{fxKRW}}",
+    Address.fromString("{{fxKRW}}").toHex(),
     // 3 WETH
-    "{{WETH}}",
-    // 4 WBTC
-    "{{WBTC}}",
-    // 5 DAI
-    "{{DAI}}",
-    // 7 fxCNY
-    "{{fxCNY}}",
-    // 8 fxPHP
-    "{{fxPHP}}",
-    // 9 fxUSD
-    "{{fxUSD}}",
-    // 10 fxCHF
-    "{{fxCHF}}",
-    // 11 FOREX
-    "{{forex}}",
+    Address.fromString("{{WETH}}").toHex(),
+    // 4 fxCNY
+    Address.fromString("{{fxCNY}}").toHex(),
+    // 5 fxPHP
+    Address.fromString("{{fxPHP}}").toHex(),
+    // 6 fxUSD
+    Address.fromString("{{fxUSD}}").toHex(),
+    // 7 fxCHF
+    Address.fromString("{{fxCHF}}").toHex(),
+    // 8 FOREX
+    Address.fromString("{{forex}}").toHex(),
   ];
 }
 
-export const fxUsdAddress: string = getTokens()[9];
+export const fxUsdAddress: string = getTokens()[6];
 
 /**
  * The WASM compiler doesn't seem to like dictionaries or switches, so it's needed to wrap it in
@@ -49,23 +47,17 @@ export function aggregatorToToken(aggregator: string): string | null {
   // KRW_USD -> fxKRW
   if (aggregator == "{{KRW_USD}}")
     return tokens[2];
-  // BTC_ETH -> WBTC
-  if (aggregator == "{{BTC_ETH}}")
-    return tokens[4];
-  // DAI_ETH -> DAI
-  if (aggregator == "{{DAI_ETH}}")
-    return tokens[5];
   // CNY_USD -> fxCNY
   if (aggregator == "{{CNY_USD}}")
-    return tokens[7];
+    return tokens[4];
   // PHP_USD -> fxPHP
   if (aggregator == "{{PHP_USD}}")
-    return tokens[8];
-  // KRW_USD -> fxKRW
-  if (aggregator == "{{KRW_USD}}")
-    return tokens[10];
+    return tokens[5];
+  // CHF_USD -> fxCHF
+  if (aggregator == "{{CHF_USD}}")
+    return tokens[7];
   // FOREX_USD -> forex
   if (aggregator == "{{FOREX_USD}}")
-    return tokens[11];
+    return tokens[8];
   return null;
 }
