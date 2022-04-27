@@ -86,7 +86,9 @@ export function updateTokenPrices(tokens: string[]): void {
       if (chainlinkTokenUsdEntity == null) continue;
       updateCollateralTokenRate(tokenAddress, chainlinkTokenUsdEntity.value, chainlinkEthUsdRate);
     }
-    let owners = VaultRegistry.load(tokenAddress.toHex()).owners;
+    let registry = VaultRegistry.load(tokenAddress.toHex());
+    if (registry == null) continue;
+    const owners: string[] = registry.owners;
     for (let j = 0; j < owners.length; j++) {
       const vault = Vault
         .load(getVaultId(Address.fromString(owners[j]), tokenAddress));
