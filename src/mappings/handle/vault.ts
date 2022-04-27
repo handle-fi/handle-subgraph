@@ -80,8 +80,9 @@ const calculateTokensRequiredForCrIncrease = (
 
 export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
   const fxTokenEthRate = fxTokenEntity.load(vault.fxToken).rate;
+  if (fxTokenEthRate.isZero()) return;
   vault.debtAsEther = vault.debt.times(fxTokenEthRate).div(ONE_ETH);
-  let collateralAsEther = BigInt.fromI32(0);
+  let collateralAsEther = ZERO;
   const collateralAmountsEther: Map<string, BigInt> = new Map<string, BigInt>();
   const collateralAddresses: string[] = vault.collateralAddresses;
   for (let i = 0; i < collateralAddresses.length; i++) {
@@ -94,20 +95,21 @@ export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
     collateralAmountsEther.set(vaultCollateral.address, collateralAsEther);
   }
   vault.collateralAsEther = collateralAsEther;
-  vault.collateralRatio = vault.debtAsEther.gt(ZERO)
+  vault.collateralRatio = !vault.debtAsEther.isZero()
     ? vault.collateralAsEther.times(ONE_ETH).div(vault.debtAsEther)
     : ZERO;
-  let minimumRatio = BigInt.fromI32(0);
-  for (let i = 0; i < collateralAddresses.length; i++) {
-    const vaultCollateral = VaultCollateral
-      .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
-    const collateral = CollateralToken.load(vaultCollateral.address);
-    minimumRatio = minimumRatio.plus(
-      collateral.mintCollateralRatio
-        .times(collateralAmountsEther.get(vaultCollateral.address))
-        .div(vault.collateralAsEther)
-    );
-  }
+  let minimumRatio = ZERO;
+  if (!vault.collateralAsEther.isZero())
+    for (let i = 0; i < collateralAddresses.length; i++) {
+      const vaultCollateral = VaultCollateral
+        .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
+      const collateral = CollateralToken.load(vaultCollateral.address);
+      minimumRatio = minimumRatio.plus(
+        collateral.mintCollateralRatio
+          .times(collateralAmountsEther.get(vaultCollateral.address))
+          .div(vault.collateralAsEther)
+      );
+    }
   vault.minimumRatio = minimumRatio;
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
