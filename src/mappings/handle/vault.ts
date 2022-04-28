@@ -106,8 +106,10 @@ export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
       const collateral = CollateralToken.load(vaultCollateral.address);
       minimumRatio = minimumRatio.plus(
         collateral.mintCollateralRatio
+          .times(ONE_ETH)
           .times(collateralAmountsEther.get(vaultCollateral.address))
           .div(vault.collateralAsEther)
+          .div(BigInt.fromI32(100))
       );
     }
   vault.minimumRatio = minimumRatio;
