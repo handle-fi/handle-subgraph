@@ -3,8 +3,15 @@ import {
   ConfigureFxToken as ConfigureFxTokenEvent,
   ConfigureCollateralToken as ConfigureCollateralTokenEvent, Handle
 } from "../../types/Handle/Handle";
-import {CollateralToken, fxToken, TokenRegistry} from "../../types/schema";
+import {
+  ChainlinkRate,
+  CollateralToken,
+  fxToken,
+  TokenRegistry
+} from "../../types/schema";
 import { ERC20 } from "../../types/Handle/ERC20";
+import {fxUsdAddress, wethAddress, forexAddress} from "../oracleAddresses";
+import {ONE_ETH} from "../oracle";
 
 const getCreateTokenRegistry = (handle: Address): TokenRegistry => {
   let registry = TokenRegistry.load((handle.toHex()))
@@ -24,7 +31,11 @@ const createCollateralTokenEntity = (address: Address): CollateralToken => {
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : ""
   entity.decimals = token.decimals();
-  entity.rate = BigInt.fromI32(0);
+  if (address.equals(wethAddress)) {
+    entity.rate = ONE_ETH;
+  } else {
+    entity.rate = BigInt.fromI32(0);
+  }
   return entity;
 };
 

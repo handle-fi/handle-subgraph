@@ -7,14 +7,14 @@ import {
 } from "../types/schema";
 import {Address, BigInt} from '@graphprotocol/graph-ts';
 import {
-  aggregatorToToken, fxUsdAddress,
+  aggregatorToToken, forexAddress, fxUsdAddress,
   getTokens,
   handleAddress, wethAddress
 } from "./oracleAddresses";
 import { log } from '@graphprotocol/graph-ts'
 import {getVaultId, updateVaultPriceDerivedProperties} from "./handle/vault";
 
-const ONE_ETH = BigInt.fromI32(10).pow(18);
+export const ONE_ETH = BigInt.fromI32(10).pow(18);
 const CHAINLINK_PRICE_UNIT = BigInt.fromI32(10).pow(8);
 
 /**
@@ -22,20 +22,20 @@ const CHAINLINK_PRICE_UNIT = BigInt.fromI32(10).pow(8);
  */
 export function handleAnswerUpdated(event: AnswerUpdated): void {
   log.info("handleAnswerUpdated", []);
-  const tokensToUpdate: string[] = aggregatorToToken(event.address.toHex()) != null
-    ? [aggregatorToToken(event.address.toHex())]
+  const tokensToUpdate: Address[] = aggregatorToToken(event.address) != null
+    ? [aggregatorToToken(event.address)!]
     : getTokens();
   if (tokensToUpdate.length > 1) {
     // ETH/USD update
-    const chainlinkRate = ChainlinkRate.load(fxUsdAddress)
-      || new ChainlinkRate(fxUsdAddress);
+    const chainlinkRate = ChainlinkRate.load(fxUsdAddress.toHex())
+      || new ChainlinkRate(fxUsdAddress.toHex());
     chainlinkRate.value = event.params.current;
     chainlinkRate.save();
   } else {
     // Specific token/US update.
     const tokenAddress = tokensToUpdate[0];
-    const chainlinkRate = ChainlinkRate.load(tokenAddress)
-      || new ChainlinkRate(tokenAddress);
+    const chainlinkRate = ChainlinkRate.load(tokenAddress.toHex())
+      || new ChainlinkRate(tokenAddress.toHex());
     chainlinkRate.value = event.params.current;
     chainlinkRate.save();
   }
@@ -47,14 +47,14 @@ export function handleAnswerUpdated(event: AnswerUpdated): void {
  * If tokens.length === 1, then a price other than ETH/USD has changed.
  * If tokens.length > 1, ETH/USD has changed.
  */
-export function updateTokenPrices(tokens: string[]): void {
+export function updateTokenPrices(tokens: Address[]): void {
   log.info("updateTokenPrices", []);
   const tokenRegistry = TokenRegistry.load(handleAddress.toHex());
   // Abort if the token registry was not created yet (before Handle deployment).
   if (tokenRegistry == null)
     return;
 
-  const chainlinkEthUsdRateEntity = ChainlinkRate.load(fxUsdAddress);
+  const chainlinkEthUsdRateEntity = ChainlinkRate.load(fxUsdAddress.toHex());
   if (chainlinkEthUsdRateEntity == null) {
     log.warning("Chainlink ETH/USD rate is not defined yet", []);
     return;
@@ -76,17 +76,23 @@ export function updateTokenPrices(tokens: string[]): void {
   // Update all required vaults.
   for (let i = 0; i < tokens.length; i ++) {
     if (tokens[i].length === 0) continue;
-    const tokenAddress = Address.fromString(tokens[i]);
-    if (fxTokens.includes(tokenAddress) && tokenAddress.length > 0) {
-      const chainlinkTokenUsdEntity = ChainlinkRate.load(tokenAddress.toHex());
-      if (chainlinkTokenUsdEntity == null) continue;
-      updateFxTokenRate(tokenAddress, chainlinkTokenUsdEntity.value, chainlinkEthUsdRate);
-    }
-    if (collateralTokens.includes(tokenAddress) && collateralTokens.length > 0) {
-      const chainlinkTokenUsdEntity = ChainlinkRate.load(tokenAddress.toHex());
-      if (chainlinkTokenUsdEntity == null) continue;
-      updateCollateralTokenRate(tokenAddress, chainlinkTokenUsdEntity.value, chainlinkEthUsdRate);
-    }
+    const tokenAddress = Address.fromString(tokens[i].toHex());
+    const chainlinkTokenUsdEntity: ChainlinkRate | null =
+      ChainlinkRate.load(tokenAddress.toHex());
+    const chainlinkTokenUsdEntityRate: BigInt = chainlinkTokenUsdEntity != null
+      ? chainlinkTokenUsdEntity.value
+      : BigInt.fromI32(0);
+    if (fxTokens.includes(tokenAddress) && tokenAddress.length > 0)
+      updateFxTokenRate(
+        tokenAddress,
+        chainlinkTokenUsdEntityRate,
+        chainlinkEthUsdRate
+      );
+    if (collateralTokens.includes(tokenAddress) && collateralTokens.length > 0)
+      updateCollateralTokenRate(tokenAddress,
+        chainlinkTokenUsdEntityRate,
+        chainlinkEthUsdRate
+      );
     let registry = VaultRegistry.load(tokenAddress.toHex());
     if (registry == null) continue;
     const owners: string[] = registry.owners;
@@ -106,7 +112,7 @@ function updateFxTokenRate(
 ): void {
   const entity = fxToken.load(address.toHex());
   if (entity == null) return;
-  if (address.toHex() === fxUsdAddress) {
+  if (address.equals(fxUsdAddress)) {
     entity.rate = ONE_ETH
       .times(CHAINLINK_PRICE_UNIT).div(chainlinkTokenUsdRate);
   } else {
@@ -124,10 +130,16 @@ function updateCollateralTokenRate(
 ): void {
   const entity = CollateralToken.load(address.toHex());
   if (entity == null) return;
-  if (address.toHex() === wethAddress) {
+  if (address.equals(wethAddress)) {
     entity.rate = ONE_ETH;
+  } else if (address.equals(forexAddress)) {
+    // FOREX rate oracle is currently fixed to 10c USD
+    entity.rate = entity.rate = ONE_ETH
+      .times(CHAINLINK_PRICE_UNIT)
+      .div(chainlinkEthUsdRate)
+      .div(BigInt.fromI32(10))
   } else {
-    // TODO this is most likely wrong, as collateral is curency/ETH, not /USD.
+    // TODO collateral oracle may be c/ETH, not c/USD.
     entity.rate = chainlinkTokenUsdRate
       .times(ONE_ETH)
       .div(chainlinkEthUsdRate);
