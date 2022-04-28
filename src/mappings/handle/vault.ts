@@ -86,12 +86,13 @@ export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
   const collateralAmountsEther: Map<string, BigInt> = new Map<string, BigInt>();
   const collateralAddresses: string[] = vault.collateralAddresses;
   for (let i = 0; i < collateralAddresses.length; i++) {
-    const collateralEthRate = CollateralToken.load(collateralAddresses[i])
-      .rate;
+    const collateralToken = CollateralToken.load(collateralAddresses[i]);
+    const collateralEthRate = collateralToken.rate;
+    const collateralUnit = BigInt.fromI32(10).pow(collateralToken.decimals);
     const vaultCollateral = VaultCollateral
       .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
     collateralAsEther = collateralAsEther
-      .plus(vaultCollateral.amount.times(collateralEthRate).div(ONE_ETH));
+      .plus(vaultCollateral.amount.times(collateralEthRate).div(collateralUnit));
     collateralAmountsEther.set(vaultCollateral.address, collateralAsEther);
   }
   vault.collateralAsEther = collateralAsEther;
