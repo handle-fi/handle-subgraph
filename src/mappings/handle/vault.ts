@@ -88,7 +88,7 @@ export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
   for (let i = 0; i < collateralAddresses.length; i++) {
     const collateralToken = CollateralToken.load(collateralAddresses[i]);
     const collateralEthRate = collateralToken.rate;
-    const collateralUnit = BigInt.fromI32(10).pow(collateralToken.decimals);
+    const collateralUnit = BigInt.fromI32(10).pow(collateralToken.decimals as u8);
     const vaultCollateral = VaultCollateral
       .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
     collateralAsEther = collateralAsEther
