@@ -5,21 +5,23 @@
   crypto,
 } from '@graphprotocol/graph-ts';
 import {
+  Handle,
   UpdateCollateral as UpdateCollateralEvent,
   UpdateDebt as UpdateDebtEvent,
-  Handle
 } from "../../types/Handle/Handle";
-import {Vault, VaultCollateral, CollateralToken, fxToken, VaultRegistry} from "../../types/schema";
-import { VaultLibrary } from "../../types/Handle/VaultLibrary";
+import {
+  Vault,
+  VaultCollateral,
+  VaultRegistry,
+  fxToken as fxTokenEntity,
+  CollateralToken
+} from "../../types/schema";
 import {concat} from "../../utils";
-import { ERC20 } from "../../types/Handle/ERC20";
 
-const oneEth = BigInt.fromString("1000000000000000000");
-const zero = BigInt.fromString("0");
-const liquidationPercentage = BigInt.fromString("80");
-const minimumLiquidationRatio = oneEth
-  .times(BigInt.fromString("110"))
-  .div(BigInt.fromString("100")); // 110%
+const ONE_ETH = BigInt.fromI32(10).pow(18);
+const ZERO = BigInt.fromString("0");
+const MINIMUM_LIQUIDATION_RATIO = ONE_ETH
+  .times(BigInt.fromI32(11)).div(BigInt.fromI32(10));
 
 export const getVaultId = (account: Address, fxToken: Address): string => (
   crypto.keccak256(concat(
@@ -46,11 +48,12 @@ const createVaultEntity = (
   const vault = new Vault(id);
   vault.fxToken = fxToken.toHex();
   vault.account = account.toHex();
-  vault.debt = zero;
-  vault.collateralAsEther = zero;
-  vault.collateralRatio = zero;
-  vault.minimumRatio = zero;
-  vault.redeemableTokens = zero;
+  vault.debt = ZERO;
+  vault.debtAsEther = ZERO;
+  vault.collateralAsEther = ZERO;
+  vault.collateralRatio = ZERO;
+  vault.minimumRatio = ZERO;
+  vault.redeemableTokens = ZERO;
   vault.isRedeemable = false;
   vault.isLiquidatable = false;
   vault.collateralAddresses = [];
@@ -70,44 +73,59 @@ const calculateTokensRequiredForCrIncrease = (
   collateralAsEther: BigInt,
   collateralReturnRatio: BigInt
 ): BigInt => {
-  const nominator = crTarget.times(debtAsEther).minus(collateralAsEther.times(oneEth));
+  const nominator = crTarget.times(debtAsEther).minus(collateralAsEther.times(ONE_ETH));
   const denominator = crTarget.minus(collateralReturnRatio);
   return nominator.div(denominator);
 };
 
-export const updateVault = (
-  vault: Vault,
-  handleAddress: Address,
-  account: Address,
-  fxToken: Address
-): Vault => {
-  const handle = Handle.bind(handleAddress);
-  const vaultLibrary = VaultLibrary.bind(handle.vaultLibrary());
-  const tokenPrice = handle.getTokenPrice(fxToken);
-  // Attempt to fetch debt and debt as ETH.
-  const tryDebt = handle.try_getDebt(account, fxToken);
-  const tryDebtAsEth = vaultLibrary.try_getDebtAsEth(account, fxToken);
-  // Assign valid values whether transaction reverted or not.
-  vault.debt = !tryDebt.reverted ? tryDebt.value : vault.debt;
-  const debtAsEth = !tryDebtAsEth.reverted
-    ? tryDebtAsEth.value
-    : vault.debt.times(tokenPrice).div(oneEth);
-  vault.collateralAsEther = vaultLibrary.getTotalCollateralBalanceAsEth(account, fxToken);
-  vault.collateralRatio = debtAsEth.gt(zero)
-    ? vault.collateralAsEther.times(oneEth).div(debtAsEth)
-    : zero;
-  vault.minimumRatio = vaultLibrary.getMinimumRatio(account, fxToken);
+export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
+  const fxTokenEthRate = fxTokenEntity.load(vault.fxToken).rate;
+  if (fxTokenEthRate.isZero()) return;
+  vault.debtAsEther = vault.debt.times(fxTokenEthRate).div(ONE_ETH);
+  let collateralAsEther = ZERO;
+  const collateralAmountsEther: Map<string, BigInt> = new Map<string, BigInt>();
+  const collateralAddresses: string[] = vault.collateralAddresses;
+  for (let i = 0; i < collateralAddresses.length; i++) {
+    const collateralToken = CollateralToken.load(collateralAddresses[i]);
+    const collateralEthRate = collateralToken.rate;
+    const collateralUnit = BigInt.fromI32(10).pow(collateralToken.decimals as u8);
+    const vaultCollateral = VaultCollateral
+      .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
+    const thisCollateralAsEther = vaultCollateral.amount
+      .times(collateralEthRate).div(collateralUnit);
+    collateralAsEther = collateralAsEther.plus(thisCollateralAsEther);
+    collateralAmountsEther.set(vaultCollateral.address, thisCollateralAsEther);
+  }
+  vault.collateralAsEther = collateralAsEther;
+  vault.collateralRatio = !vault.debtAsEther.isZero()
+    ? vault.collateralAsEther.times(ONE_ETH).div(vault.debtAsEther)
+    : ZERO;
+  let minimumRatio = ZERO;
+  if (!vault.collateralAsEther.isZero())
+    for (let i = 0; i < collateralAddresses.length; i++) {
+      const vaultCollateral = VaultCollateral
+        .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
+      const collateral = CollateralToken.load(vaultCollateral.address);
+      minimumRatio = minimumRatio.plus(
+        collateral.mintCollateralRatio
+          .times(ONE_ETH)
+          .times(collateralAmountsEther.get(vaultCollateral.address))
+          .div(vault.collateralAsEther)
+          .div(BigInt.fromI32(100))
+      );
+    }
+  vault.minimumRatio = minimumRatio;
   vault.isRedeemable = (
     vault.collateralRatio.lt(vault.minimumRatio) &&
-    vault.collateralRatio.ge(oneEth) &&
-    vault.collateralAsEther.gt(zero) &&
-    vault.debt.gt(zero)
+    vault.collateralRatio.ge(ONE_ETH) &&
+    vault.collateralAsEther.gt(ZERO) &&
+    vault.debt.gt(ZERO)
   );
   let liquidationRatio = vault.minimumRatio
-        .times(liquidationPercentage)
-        .div(BigInt.fromString("100"));
-  if (liquidationRatio.lt(minimumLiquidationRatio))
-    liquidationRatio = minimumLiquidationRatio;
+        .times(BigInt.fromI32(8))
+        .div(BigInt.fromI32(10));
+  if (liquidationRatio.lt(MINIMUM_LIQUIDATION_RATIO))
+    liquidationRatio = MINIMUM_LIQUIDATION_RATIO;
   vault.isLiquidatable = (
     vault.isRedeemable &&
     vault.collateralRatio.lt(liquidationRatio)
@@ -115,22 +133,22 @@ export const updateVault = (
   if (vault.isRedeemable) {
     const redeemableAsEther = calculateTokensRequiredForCrIncrease(
       vault.minimumRatio,
-      debtAsEth,
+      vault.debtAsEther,
       vault.collateralAsEther,
-      oneEth // no fees for redemption.
+      ONE_ETH // no fees for redemption.
     );
     // Convert to fxToken currency.
     vault.redeemableTokens = vault.isRedeemable
-      ? redeemableAsEther.times(oneEth).div(tokenPrice)
-      : zero;
+      ? redeemableAsEther.times(ONE_ETH).div(fxTokenEthRate)
+      : ZERO;
     // If redeemable amount is greater than debt, cap the value, although this is a critical issue.
     if (vault.redeemableTokens.gt(vault.debt))
       vault.redeemableTokens = vault.debt;
-  } else if (vault.redeemableTokens.gt(zero)) {
+  } else if (vault.redeemableTokens.gt(ZERO)) {
     // Clear redeemable amount.
-    vault.redeemableTokens = zero;
+    vault.redeemableTokens = ZERO;
   }
-  return vault;
+  vault.save();
 };
 
 const getCreateVaultCollateral = (
@@ -143,7 +161,7 @@ const getCreateVaultCollateral = (
     vaultCollateral = new VaultCollateral(vaultCollateralId);
     vaultCollateral.vault = vault.id;
     vaultCollateral.address = collateralToken.toHex();
-    vaultCollateral.amount = zero;
+    vaultCollateral.amount = ZERO;
   }
   return vaultCollateral as VaultCollateral;
 };
@@ -164,14 +182,12 @@ export function handleDebtUpdate (event: UpdateDebtEvent): void {
     event.params.account,
     event.params.fxToken
   );
-  vault = updateVault(vault as Vault, event.address, event.params.account, event.params.fxToken);
+  const handleContract = Handle.bind(event.address);
+  const tryDebt = handleContract
+    .try_getDebt(event.params.account, event.params.fxToken);
+  if (!tryDebt.reverted)
+    vault.debt = tryDebt.value;
   vault.save();
-  // Update fxToken total supply.
-  const token = fxToken.load(event.params.fxToken.toHex());
-  if (token != null) {
-    token.totalSupply = ERC20.bind(event.params.fxToken).totalSupply();
-    token.save();
-  }
   // Add account to vaultOwners array if needed.
   const vaultRegistry = getCreateVaultRegistry(event.params.fxToken);
   const ownersArray = vaultRegistry.owners;
@@ -192,16 +208,15 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     account,
     fxToken
   );
-  vault = updateVault(vault as Vault, event.address, account, fxToken);
-  // Add or remove collateral token address to array.
-  const handle = Handle.bind(event.address);
-  const collateralBalance = handle.getCollateralBalance(account, collateralAddress, fxToken);
+  const handleContract = Handle.bind(event.address);
+  const collateralBalance = handleContract
+    .getCollateralBalance(account, collateralAddress, fxToken);
   const addresses = vault.collateralAddresses;
   const hasCollateral = addresses.includes(collateralAddress.toHex());
-  if (collateralBalance.equals(zero) && hasCollateral) {
+  if (collateralBalance.equals(ZERO) && hasCollateral) {
     addresses.splice(addresses.indexOf(collateralAddress.toHex()), 1);
     vault.collateralAddresses = addresses;
-  } else if (collateralBalance.gt(zero) && !hasCollateral) {
+  } else if (collateralBalance.gt(ZERO) && !hasCollateral) {
     addresses.push(collateralAddress.toHex());
     vault.collateralAddresses = addresses;
   }
@@ -211,17 +226,6 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
     vault as Vault,
     collateralAddress
   );
-  vaultCollateral.amount = handle.getCollateralBalance(
-    account,
-    collateralAddress,
-    fxToken
-  );
+  vaultCollateral.amount = collateralBalance;
   vaultCollateral.save();
-  // Update collateral balance.
-  // Update fxToken total supply.
-  const token = CollateralToken.load(collateralAddress.toHex());
-  if (token != null) {
-    token.totalBalance = handle.totalBalances(collateralAddress);
-    token.save();
-  }
 }

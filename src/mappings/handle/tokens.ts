@@ -1,17 +1,17 @@
 ﻿import {Address, BigInt} from '@graphprotocol/graph-ts';
 import {
-  Handle,
   ConfigureFxToken as ConfigureFxTokenEvent,
-  ConfigureCollateralToken as ConfigureCollateralTokenEvent
+  ConfigureCollateralToken as ConfigureCollateralTokenEvent, Handle
 } from "../../types/Handle/Handle";
 import {
-  Handle as ETH_USD_Handle
-} from "../../types/ETH_USD/Handle";
-import {CollateralToken, fxToken, TokenRegistry} from "../../types/schema";
+  ChainlinkRate,
+  CollateralToken,
+  fxToken,
+  TokenRegistry
+} from "../../types/schema";
 import { ERC20 } from "../../types/Handle/ERC20";
-import { updateTokenPrices } from "../oracle";
-import { getTokens } from "../oracleAddresses";
-import {oneEth} from "../../utils";
+import {fxUsdAddress, wethAddress, forexAddress} from "../oracleAddresses";
+import {ONE_ETH} from "../oracle";
 
 const getCreateTokenRegistry = (handle: Address): TokenRegistry => {
   let registry = TokenRegistry.load((handle.toHex()))
@@ -23,7 +23,7 @@ const getCreateTokenRegistry = (handle: Address): TokenRegistry => {
   return registry as TokenRegistry;
 };
 
-const createCollateralTokenEntity = (address: Address, handle: Handle): CollateralToken => {
+const createCollateralTokenEntity = (address: Address): CollateralToken => {
   const entity = new CollateralToken(address.toHex());
   const token = ERC20.bind(address);
   let symbolCall = token.try_symbol();
@@ -31,15 +31,15 @@ const createCollateralTokenEntity = (address: Address, handle: Handle): Collater
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : ""
   entity.decimals = token.decimals();
-  // Set initial rate to 1 ether if tx reverts to prevent division by zero errors.
-  const tryTokenRate = handle.try_getTokenPrice(address);
-  entity.rate = !tryTokenRate.reverted
-    ? tryTokenRate.value
-    : oneEth;
+  if (address.equals(wethAddress)) {
+    entity.rate = ONE_ETH;
+  } else {
+    entity.rate = BigInt.fromI32(0);
+  }
   return entity;
 };
 
-const createFxTokenEntity = (address: Address, handle: Handle): fxToken => {
+const createFxTokenEntity = (address: Address): fxToken => {
   const entity = new fxToken(address.toHex());
   const token = ERC20.bind(address);
   let symbolCall = token.try_symbol();
@@ -47,22 +47,16 @@ const createFxTokenEntity = (address: Address, handle: Handle): fxToken => {
   entity.decimals = token.decimals();
   let nameCall = token.try_name();
   entity.name = !nameCall.reverted ? nameCall.value : "";
-  // Set initial rate to 1 ether if tx reverts to prevent division by zero errors.
-  const tryTokenRate = handle.try_getTokenPrice(address);
-  entity.rate = !tryTokenRate.reverted
-    ? tryTokenRate.value
-    : oneEth;
+  entity.rate = BigInt.fromI32(0);
   return entity;
 };
 
 export function handleFxTokenConfiguration (event: ConfigureFxTokenEvent): void {
   const address = event.params.fxToken;
-  const handle = Handle.bind(event.address);
   // Load token entity.
-  const entity = fxToken.load(address.toHex()) || createFxTokenEntity(address, handle);
-  // Set contract ata.
-  entity.isValid = handle.isFxTokenValid(address);
-  entity.totalSupply = ERC20.bind(address).totalSupply();
+  const entity = fxToken.load(address.toHex()) || createFxTokenEntity(address);
+  // Set contract data.
+  entity.isValid = !event.params.removed;
   entity.save();
   // Update token registry for fxToken.
   const tokenRegistry = getCreateTokenRegistry(event.address);
@@ -72,25 +66,18 @@ export function handleFxTokenConfiguration (event: ConfigureFxTokenEvent): void 
     tokenRegistry.fxTokens = fxArray;
     tokenRegistry.save();
   }
-  // Also update token price.
-  updateTokenPrices(
-    [address.toHex()],
-    ETH_USD_Handle.bind(event.address)
-  );
 }
 
 export function handleCollateralTokenConfiguration (event: ConfigureCollateralTokenEvent): void {
   const address = event.params.collateralToken;
   const handle = Handle.bind(event.address);
   // Load token entity.
-  const entity = CollateralToken.load(address.toHex()) || createCollateralTokenEntity(address, handle);
+  const entity = CollateralToken.load(address.toHex()) || createCollateralTokenEntity(address);
   // Set contract data.
   const collateralDetails = handle.getCollateralDetails(address);
   entity.liquidationFee = collateralDetails.liquidationFee;
   entity.mintCollateralRatio = collateralDetails.mintCR;
-  entity.isValid = handle.isCollateralValid(address);
-  entity.interestRate = handle.getCollateralDetails(address).interestRate;
-  entity.totalBalance = handle.totalBalances(address);
+  entity.interestRate = collateralDetails.interestRate;
   entity.save();
   // Update token registry for collateral token.
   const tokenRegistry = getCreateTokenRegistry(event.address);
@@ -100,10 +87,4 @@ export function handleCollateralTokenConfiguration (event: ConfigureCollateralTo
     tokenRegistry.collateralTokens = collateralArray;
     tokenRegistry.save();
   }
-  // Also update all token prices.
-  // This is done to ensure everything is correctly set up.
-  updateTokenPrices(
-    getTokens(),
-    ETH_USD_Handle.bind(event.address)
-  );
 }

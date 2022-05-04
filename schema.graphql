@@ -6,9 +6,12 @@ type CollateralToken @entity {
     mintCollateralRatio: BigInt!
     liquidationFee: BigInt!
     interestRate: BigInt!
-    totalBalance: BigInt!
-    isValid: Boolean!
     rate: BigInt!
+}
+
+type ChainlinkRate @entity {
+    id: ID!
+    value: BigInt!
 }
 
 type fxToken @entity {
@@ -16,7 +19,6 @@ type fxToken @entity {
     name: String!
     symbol: String!
     decimals: Int!
-    totalSupply: BigInt!
     isValid: Boolean!
     rate: BigInt!
 }
@@ -26,6 +28,7 @@ type Vault @entity {
     account: String!
     fxToken: String!
     debt: BigInt!
+    debtAsEther: BigInt!
     collateralAsEther: BigInt!
     collateralRatio: BigInt!
     collateralTokens: [VaultCollateral!]! @derivedFrom(field: "vault")
@@ -58,17 +61,8 @@ type fxKeeperPool @entity {
     id: ID!
     fxToken: String!
     totalDeposits: BigInt!
-    depositorCount: BigInt!
     liquidationsExecuted: BigInt!
-    collateralTokens: [fxKeeperPoolCollateral!]! @derivedFrom(field: "pool")
     collateralAddresses: [String!]!
-}
-
-type fxKeeperPoolCollateral @entity {
-    id: ID!
-    pool: fxKeeperPool!
-    address: String!
-    amount: BigInt!
 }
 
 type pctPool @entity {
