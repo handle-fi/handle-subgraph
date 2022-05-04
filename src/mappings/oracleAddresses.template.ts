@@ -28,7 +28,13 @@ export function getTokens(): Address[] {
 }
 
 export const wethAddress: Address = getTokens()[3];
+export const fxAudAddress: Address = getTokens()[0];
+export const fxEurAddress: Address = getTokens()[1];
+export const fxKrwAddress: Address = getTokens()[2];
+export const fxCnyAddress: Address = getTokens()[4];
+export const fxPhpAddress: Address = getTokens()[5];
 export const fxUsdAddress: Address = getTokens()[6];
+export const fxChfAddress: Address = getTokens()[7];
 export const forexAddress: Address = getTokens()[8];
 
 /**
@@ -36,30 +42,29 @@ export const forexAddress: Address = getTokens()[8];
  * a function using if statements.
  */
 export function aggregatorToToken(aggregator: Address): Address | null {
-  const tokens = getTokens();
   // ETH_USD, update ALL vaults due to indirect quoting.
   if (aggregator.equals(Address.fromString("{{ETH_USD}}")))
     return null;
   // AUD_USD -> fxAUD
   if (aggregator.equals(Address.fromString("{{AUD_USD}}")))
-    return tokens[0];
+    return fxAudAddress;
   // EUR_USD -> fxEUR
   if (aggregator.equals(Address.fromString("{{EUR_USD}}")))
-    return tokens[1];
+    return fxEurAddress;
   // KRW_USD -> fxKRW
   if (aggregator.equals(Address.fromString("{{KRW_USD}}")))
-    return tokens[2];
+    return fxKrwAddress;
   // CNY_USD -> fxCNY
   if (aggregator.equals(Address.fromString("{{CNY_USD}}")))
-    return tokens[4];
+    return fxCnyAddress;
   // PHP_USD -> fxPHP
   if (aggregator.equals(Address.fromString("{{PHP_USD}}")))
-    return tokens[5];
+    return fxPhpAddress;
   // CHF_USD -> fxCHF
   if (aggregator.equals(Address.fromString("{{CHF_USD}}")))
-    return tokens[7];
+    return fxChfAddress;
   // FOREX_USD -> forex
   if (aggregator.equals(Address.fromString("{{FOREX_USD}}")))
-    return tokens[8];
+    return forexAddress;
   return null;
 }
