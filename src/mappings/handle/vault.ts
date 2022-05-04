@@ -20,7 +20,7 @@ import {concat} from "../../utils";
 
 const ONE_ETH = BigInt.fromI32(10).pow(18);
 const ZERO = BigInt.fromString("0");
-const MINIMMUM_LIQUIDATION_RATIO = ONE_ETH
+const MINIMUM_LIQUIDATION_RATIO = ONE_ETH
   .times(BigInt.fromI32(11)).div(BigInt.fromI32(10));
 
 export const getVaultId = (account: Address, fxToken: Address): string => (
@@ -124,8 +124,8 @@ export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
   let liquidationRatio = vault.minimumRatio
         .times(BigInt.fromI32(8))
         .div(BigInt.fromI32(10));
-  if (liquidationRatio.lt(MINIMMUM_LIQUIDATION_RATIO))
-    liquidationRatio = MINIMMUM_LIQUIDATION_RATIO;
+  if (liquidationRatio.lt(MINIMUM_LIQUIDATION_RATIO))
+    liquidationRatio = MINIMUM_LIQUIDATION_RATIO;
   vault.isLiquidatable = (
     vault.isRedeemable &&
     vault.collateralRatio.lt(liquidationRatio)
