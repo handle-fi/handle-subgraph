@@ -63,6 +63,7 @@ const getDepositor = (
   entity.account = account;
   entity.rewardPool = poolId.toHex();
   entity.totalClaimed = BigInt.fromI32(0);
+  entity.updatedAt = BigInt.fromI32(0);
   return entity as RewardPoolDepositor;
 };
 
@@ -220,6 +221,7 @@ export function handleStake(event: Stake): void {
     event.params.poolId
   );
   depositor.amount = depositor.amount.plus(event.params.amount);
+  depositor.updatedAt = event.block.timestamp;
   depositor.save();
   // Update pool params.
   const pool = getRewardPool(event.params.poolId);
@@ -236,6 +238,7 @@ export function handleUnstake(event: Unstake): void {
     event.params.poolId
   );
   depositor.amount = depositor.amount.minus(event.params.amount);
+  depositor.updatedAt = event.block.timestamp;
   depositor.save();
   // Update pool params.
   const pool = getRewardPool(event.params.poolId);

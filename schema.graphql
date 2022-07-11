@@ -119,6 +119,7 @@ type RewardPoolDepositor @entity {
     account: String!
     rewardPool: RewardPool!
     totalClaimed: BigInt!
+    updatedAt: BigInt!
 }
 
 type GovernanceLocker @entity {
