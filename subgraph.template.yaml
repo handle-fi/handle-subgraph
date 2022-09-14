@@ -402,6 +402,114 @@ dataSources:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
 {{/CHF_USD}}
+{{#CAD_USD}}
+  - kind: ethereum/contract
+    name: CAD_USD
+    network: {{network}}
+    source:
+      address: "{{CAD_USD}}"
+      abi: AggregatorV3Interface
+      startBlock: {{oracleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/oracle.ts
+      entities:
+        - Vault
+        - VaultRegistry
+      abis:
+        - name: AggregatorV3Interface
+          file: ./abis/AggregatorV3Interface.json
+        - name: Handle
+          file: ./abis/Handle.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+{{/CAD_USD}}
+{{#GBP_USD}}
+  - kind: ethereum/contract
+    name: GBP_USD
+    network: {{network}}
+    source:
+      address: "{{GBP_USD}}"
+      abi: AggregatorV3Interface
+      startBlock: {{oracleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/oracle.ts
+      entities:
+        - Vault
+        - VaultRegistry
+      abis:
+        - name: AggregatorV3Interface
+          file: ./abis/AggregatorV3Interface.json
+        - name: Handle
+          file: ./abis/Handle.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+{{/GBP_USD}}
+{{#JPY_USD}}
+  - kind: ethereum/contract
+    name: JPY_USD
+    network: {{network}}
+    source:
+      address: "{{JPY_USD}}"
+      abi: AggregatorV3Interface
+      startBlock: {{oracleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/oracle.ts
+      entities:
+        - Vault
+        - VaultRegistry
+      abis:
+        - name: AggregatorV3Interface
+          file: ./abis/AggregatorV3Interface.json
+        - name: Handle
+          file: ./abis/Handle.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+{{/JPY_USD}}
+{{#SGD_USD}}
+  - kind: ethereum/contract
+    name: SGD_USD
+    network: {{network}}
+    source:
+      address: "{{SGD_USD}}"
+      abi: AggregatorV3Interface
+      startBlock: {{oracleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/oracle.ts
+      entities:
+        - Vault
+        - VaultRegistry
+      abis:
+        - name: AggregatorV3Interface
+          file: ./abis/AggregatorV3Interface.json
+        - name: Handle
+          file: ./abis/Handle.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+{{/SGD_USD}}
 {{#BTC_ETH}}
   - kind: ethereum/contract
     name: BTC_ETH
