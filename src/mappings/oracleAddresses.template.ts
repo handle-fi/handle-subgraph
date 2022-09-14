@@ -85,16 +85,16 @@ export function aggregatorToToken(aggregator: Address): Address | null {
   // FOREX_USD -> forex
   if (aggregator.equals(Address.fromString("{{FOREX_USD}}")))
     return forexAddress;
-  // CAD_USD -> forex
+  // CAD_USD -> fxCAD
   if (aggregator.equals(Address.fromString("{{CAD_USD}}")))
     return fxCadAddress;
-  // GBP_USD -> forex
+  // GBP_USD -> fxGBP
   if (aggregator.equals(Address.fromString("{{GBP_USD}}")))
     return fxGbpAddress;
-  // JPY_USD -> forex
+  // JPY_USD -> fxJPY
   if (aggregator.equals(Address.fromString("{{JPY_USD}}")))
     return fxJpyAddress;
-  // SGD_USD -> forex
+  // SGD_USD -> fxSGD
   if (aggregator.equals(Address.fromString("{{SGD_USD}}")))
     return fxSgdAddress;
   return null;
