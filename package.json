@@ -7,17 +7,12 @@
   "scripts": {
     "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
-    "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml && mustache config/kovan.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
+    "create:arbitrum": "graph create --node https://arbitrum.subgraph.handle.fi/admin handle-fi/cdp --access-token $SUBGRAPH_TOKEN",
     "prepare:local": "mustache config/hardhat.json subgraph.template.yaml > subgraph.yaml && mustache config/hardhat.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
-    "prepare:rinkebyarbitrum": "mustache config/rinkebyarbitrum.json subgraph.template.yaml > subgraph.yaml && mustache config/rinkebyarbitrum.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
     "prepare:arbitrum": "mustache config/arbitrum.json subgraph.template.yaml > subgraph.yaml && mustache config/arbitrum.json src/mappings/oracleAddresses.template.ts > src/mappings/oracleAddresses.ts",
     "create:local": "graph create handle-fi/handle-local --node http://127.0.0.1:8020",
-    "create:rinkebyarbitrum": "graph create handle-fi/handle-rinkebyarbitrum --node http://128.199.198.163:8020",
     "deploy:local": "graph deploy handle-fi/handle-local --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
-    "deploy:rinkebyarbitrum": "graph deploy handle-fi/handle-rinkebyarbitrum --debug --ipfs http://128.199.198.163:5001 --node http://128.199.198.163:8020",
-    "deploy:arbitrum": "graph deploy handle-fi/handle --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug --access-token $SUBGRAPH_TOKEN",
-    "deploy:kovan": "graph deploy handle-fi/handle-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug",
-    "prepare-codegen-deploy:arbitrum": "yarn prepare:arbitrum && yarn codegen && yarn deploy:arbitrum",
+    "deploy:arbitrum": "graph deploy handle-fi/cdp --node https://arbitrum.subgraph.handle.fi/admin --ipfs https://arbitrum.subgraph.handle.fi/ipfs --access-token $SUBGRAPH_TOKEN",
     "watch:local": "graph deploy handle-fi/handle-local --watch --debug --node http://127.0.0.1:8020/ --ipfs http://localhost:5001"
   },
   "devDependencies": {
