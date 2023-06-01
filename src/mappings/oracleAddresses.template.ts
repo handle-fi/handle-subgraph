@@ -38,6 +38,8 @@ export function getTokens(): Address[] {
     Address.fromString("{{fxJPY}}"),
     // 12 fxSGD
     Address.fromString("{{fxSGD}}"),
+    // 13 WSTETH
+    Address.fromString("{{WSTETH}}")
   ];
 }
 
@@ -55,6 +57,7 @@ export const fxCadAddress: Address = getTokens()[9];
 export const fxGbpAddress: Address = getTokens()[10];
 export const fxJpyAddress: Address = getTokens()[11];
 export const fxSgdAddress: Address = getTokens()[12];
+export const wstethAddress: Address = getTokens()[13];
 
 /**
  * The WASM compiler doesn't seem to like dictionaries or switches, so it's needed to wrap it in
@@ -97,5 +100,12 @@ export function aggregatorToToken(aggregator: Address): Address | null {
   // SGD_USD -> fxSGD
   if (aggregator.equals(Address.fromString("{{SGD_USD}}")))
     return fxSgdAddress;
+  // WSTETH_ETH -> WSTETH
+  if (aggregator.equals(Address.fromString("{{WSTETH_ETH}}")))
+    return wstethAddress;
   return null;
+}
+
+export function isAggregatorQuotedOnEth(aggregator: Address): boolean {
+  return aggregator.equals(Address.fromString("{{WSTETH_ETH}}"));
 }
