@@ -52,7 +52,7 @@ export function handleAnswerUpdated(event: AnswerUpdated): void {
     }
     const chainlinkRate = ChainlinkRate.load(tokenAddress.toHex())
       || new ChainlinkRate(tokenAddress.toHex());
-    chainlinkRate.value = aggregatorValue;
+    chainlinkRate.value = aggregatorValue as BigInt;
     chainlinkRate.save();
   }
   updateTokenPrices(tokensToUpdate);
