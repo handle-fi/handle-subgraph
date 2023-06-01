@@ -153,7 +153,6 @@ function updateCollateralTokenRate(
       .div(chainlinkEthUsdRate)
       .div(BigInt.fromI32(10))
   } else {
-    // TODO collateral oracle may be c/ETH, not c/USD.
     entity.rate = chainlinkTokenUsdRate
       .times(ONE_ETH)
       .div(chainlinkEthUsdRate);
