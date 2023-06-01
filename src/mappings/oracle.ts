@@ -102,7 +102,8 @@ export function updateTokenPrices(tokens: Address[]): void {
         ethUsd.value
       );
     if (collateralTokens.includes(tokenAddress) && collateralTokens.length > 0)
-      updateCollateralTokenRate(tokenAddress,
+      updateCollateralTokenRate(
+        tokenAddress,
         tokenUsdValue,
         ethUsd.value
       );
