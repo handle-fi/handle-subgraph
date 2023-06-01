@@ -13,6 +13,7 @@ import {
 } from "./oracleAddresses";
 import { log } from '@graphprotocol/graph-ts'
 import {getVaultId, updateVaultPriceDerivedProperties} from "./handle/vault";
+import {isAggregatorQuotedOnEth} from "./oracleAddresses.template";
 
 export const ONE_ETH = BigInt.fromI32(10).pow(18);
 const CHAINLINK_PRICE_UNIT = BigInt.fromI32(10).pow(8);
@@ -22,21 +23,36 @@ const CHAINLINK_PRICE_UNIT = BigInt.fromI32(10).pow(8);
  */
 export function handleAnswerUpdated(event: AnswerUpdated): void {
   log.info("handleAnswerUpdated", []);
-  const tokensToUpdate: Address[] = aggregatorToToken(event.address) != null
-    ? [aggregatorToToken(event.address)!]
+  // The token is null if the oracle updated was ETH/USD.
+  // In that case, all vaults/tokens must be updated due to indirect quoting.
+  const aggregatorAddress = event.address;
+  const token = aggregatorToToken(aggregatorAddress);
+  const tokensToUpdate: Address[] = token != null
+    ? [token!]
     : getTokens();
   if (tokensToUpdate.length > 1) {
     // ETH/USD update
+    // The fxUSD rate, instead of 1, is actually the ETH/USD price.
+    // All other ChainlinkRates are the token value in USD.
     const chainlinkRate = ChainlinkRate.load(fxUsdAddress.toHex())
       || new ChainlinkRate(fxUsdAddress.toHex());
     chainlinkRate.value = event.params.current;
     chainlinkRate.save();
   } else {
-    // Specific token/US update.
+    // Specific token update.
     const tokenAddress = tokensToUpdate[0];
+    const aggregatorValue: BigInt | null = getAggregatorValueInUsd(
+      aggregatorAddress,
+      event.params.current
+    );
+    if (!aggregatorValue) {
+      // Abort this oracle update.
+      // This happens if the ETH/USD price isn't available.
+      return;
+    }
     const chainlinkRate = ChainlinkRate.load(tokenAddress.toHex())
       || new ChainlinkRate(tokenAddress.toHex());
-    chainlinkRate.value = event.params.current;
+    chainlinkRate.value = aggregatorValue;
     chainlinkRate.save();
   }
   updateTokenPrices(tokensToUpdate);
@@ -53,20 +69,17 @@ export function updateTokenPrices(tokens: Address[]): void {
   // Abort if the token registry was not created yet (before Handle deployment).
   if (tokenRegistry == null)
     return;
-
-  const chainlinkEthUsdRateEntity = ChainlinkRate.load(fxUsdAddress.toHex());
-  if (chainlinkEthUsdRateEntity == null) {
+  const ethUsd = ChainlinkRate.load(fxUsdAddress.toHex());
+  if (ethUsd == null) {
     log.warning("Chainlink ETH/USD rate is not defined yet", []);
     return;
   }
-  const chainlinkEthUsdRate = chainlinkEthUsdRateEntity.value;
-
   const fxTokenStrings: string[] = tokenRegistry.fxTokens;
   const fxTokens: Address[] = [];
   for (let i = 0; i < fxTokenStrings.length; i++) {
     fxTokens.push(Address.fromString(fxTokenStrings[i]));
   }
-  
+
   const collateralTokenStrings: string[] = tokenRegistry.collateralTokens;
   const collateralTokens: Address[] = [];
   for (let i = 0; i < collateralTokenStrings.length; i++) {
@@ -77,21 +90,21 @@ export function updateTokenPrices(tokens: Address[]): void {
   for (let i = 0; i < tokens.length; i ++) {
     if (tokens[i].length === 0) continue;
     const tokenAddress = Address.fromString(tokens[i].toHex());
-    const chainlinkTokenUsdEntity: ChainlinkRate | null =
+    const tokenUsd: ChainlinkRate | null =
       ChainlinkRate.load(tokenAddress.toHex());
-    const chainlinkTokenUsdEntityRate: BigInt = chainlinkTokenUsdEntity != null
-      ? chainlinkTokenUsdEntity.value
+    const tokenUsdValue: BigInt = tokenUsd != null
+      ? tokenUsd.value
       : BigInt.fromI32(0);
     if (fxTokens.includes(tokenAddress) && tokenAddress.length > 0)
       updateFxTokenRate(
         tokenAddress,
-        chainlinkTokenUsdEntityRate,
-        chainlinkEthUsdRate
+        tokenUsdValue,
+        ethUsd.value
       );
     if (collateralTokens.includes(tokenAddress) && collateralTokens.length > 0)
       updateCollateralTokenRate(tokenAddress,
-        chainlinkTokenUsdEntityRate,
-        chainlinkEthUsdRate
+        tokenUsdValue,
+        ethUsd.value
       );
     let registry = VaultRegistry.load(tokenAddress.toHex());
     if (registry == null) continue;
@@ -145,4 +158,25 @@ function updateCollateralTokenRate(
       .div(chainlinkEthUsdRate);
   }
   entity.save();
+}
+
+function getAggregatorValueInUsd(
+  aggregatorAddress: Address,
+  aggregatorValue: BigInt
+): BigInt | null {
+  // Oracles quote either on ETH or USD.
+  // If quotes on ETH, this must be converted to an USD value.
+  if (isAggregatorQuotedOnEth(aggregatorAddress)) {
+    // Convert from ETH to USD, if the ETH/USD price is available.
+    // Otherwise, ignore this oracle update by returning null.
+    const ethUsd = ChainlinkRate.load(fxUsdAddress.toHex());
+    if (!ethUsd) {
+      return null;
+    }
+    return aggregatorValue
+      .times(ethUsd.value)
+      .div(CHAINLINK_PRICE_UNIT);
+  }
+  // The value is already in USD.
+  return aggregatorValue;
 }
