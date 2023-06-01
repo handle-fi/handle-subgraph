@@ -7,13 +7,16 @@ import {
 } from "../types/schema";
 import {Address, BigInt} from '@graphprotocol/graph-ts';
 import {
-  aggregatorToToken, forexAddress, fxUsdAddress,
+  aggregatorToToken,
+  forexAddress,
+  fxUsdAddress,
   getTokens,
-  handleAddress, wethAddress
+  handleAddress,
+  wethAddress,
+  isAggregatorQuotedOnEth
 } from "./oracleAddresses";
 import { log } from '@graphprotocol/graph-ts'
 import {getVaultId, updateVaultPriceDerivedProperties} from "./handle/vault";
-import {isAggregatorQuotedOnEth} from "./oracleAddresses.template";
 
 export const ONE_ETH = BigInt.fromI32(10).pow(18);
 const CHAINLINK_PRICE_UNIT = BigInt.fromI32(10).pow(8);
