@@ -510,6 +510,33 @@ dataSources:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAnswerUpdated
 {{/SGD_USD}}
+{{#WSTETH_ETH}}
+  - kind: ethereum/contract
+    name: WSTETH_ETH
+    network: {{network}}
+    source:
+      address: "{{WSTETH_ETH}}"
+      abi: AggregatorV3Interface
+      startBlock: {{oracleStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/oracle.ts
+      entities:
+        - Vault
+        - VaultRegistry
+      abis:
+        - name: AggregatorV3Interface
+          file: ./abis/AggregatorV3Interface.json
+        - name: Handle
+          file: ./abis/Handle.json
+        - name: VaultLibrary
+          file: ./abis/VaultLibrary.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+{{/WSTETH_ETH}}
 {{#BTC_ETH}}
   - kind: ethereum/contract
     name: BTC_ETH
