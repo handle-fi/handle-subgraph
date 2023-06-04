@@ -178,7 +178,7 @@ function getAggregatorValueInUsd(
     }
     return aggregatorValue
       .times(ethUsd.value)
-      .div(CHAINLINK_PRICE_UNIT);
+      .div(ONE_ETH);
   }
   // The value is already in USD.
   return aggregatorValue;
