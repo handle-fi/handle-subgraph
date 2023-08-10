@@ -13,7 +13,7 @@ dataSources:
       startBlock: {{handleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/handle.ts
       entities:
@@ -47,7 +47,7 @@ dataSources:
       startBlock: {{handleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/fxKeeperPool.ts
       entities:
@@ -78,7 +78,7 @@ dataSources:
       startBlock: {{handleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/PCT.ts
       entities:
@@ -112,7 +112,7 @@ dataSources:
       startBlock: {{governanceStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/governance.ts
       entities:
@@ -137,7 +137,7 @@ dataSources:
       startBlock: {{handleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/rewardPool.ts
       entities:
@@ -177,7 +177,7 @@ dataSources:
       startBlock: {{handleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/transformer.ts
       entities:
@@ -197,7 +197,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -223,7 +223,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -250,7 +250,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -277,7 +277,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -304,7 +304,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -331,7 +331,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -358,7 +358,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -385,7 +385,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -412,7 +412,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -439,7 +439,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -466,7 +466,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -493,7 +493,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -520,7 +520,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -547,7 +547,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:
@@ -574,7 +574,7 @@ dataSources:
       startBlock: {{oracleStartBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       file: ./src/mappings/oracle.ts
       entities:

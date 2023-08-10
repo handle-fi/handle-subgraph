@@ -5,6 +5,7 @@
   "repository": "https://github.com/handle-fi/handle-subgraph",
   "license": "GPL-3.0-or-later",
   "scripts": {
+    "auth": "graph auth --studio $SUBGRAPH_TOKEN",
     "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
     "create:arbitrum": "graph create --node https://arbitrum.subgraph.handle.fi/admin handle-fi/cdp --access-token $SUBGRAPH_TOKEN",
@@ -13,11 +14,12 @@
     "create:local": "graph create handle-fi/handle-local --node http://127.0.0.1:8020",
     "deploy:local": "graph deploy handle-fi/handle-local --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "deploy:arbitrum": "graph deploy handle-fi/cdp --node https://arbitrum.subgraph.handle.fi/admin --ipfs https://arbitrum.subgraph.handle.fi/ipfs --access-token $SUBGRAPH_TOKEN",
+    "deploy:arbitrum-hs": "graph deploy handle-fi/handle --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug --access-token $SUBGRAPH_TOKEN",
     "watch:local": "graph deploy handle-fi/handle-local --watch --debug --node http://127.0.0.1:8020/ --ipfs http://localhost:5001"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.20.0",
-    "@graphprotocol/graph-ts": "^0.20.0",
+    "@graphprotocol/graph-cli": "^0.54.0",
+    "@graphprotocol/graph-ts": "^0.25.0",
     "@types/node": "^14.14.41",
     "mustache": "^4.2.0",
     "typescript": "^4.2.4"
