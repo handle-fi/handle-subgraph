@@ -72,7 +72,7 @@ export function handleCollateralTokenConfiguration (event: ConfigureCollateralTo
   const address = event.params.collateralToken;
   const handle = Handle.bind(event.address);
   // Load token entity.
-  const entity = CollateralToken.load(address.toHex()) || createCollateralTokenEntity(address);
+  const entity: CollateralToken = CollateralToken.load(address.toHex()) || createCollateralTokenEntity(address);
   // Set contract data.
   const collateralDetails = handle.getCollateralDetails(address);
   entity.liquidationFee = collateralDetails.liquidationFee;
