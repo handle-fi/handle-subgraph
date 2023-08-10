@@ -54,7 +54,7 @@ const createFxTokenEntity = (address: Address): fxToken => {
 export function handleFxTokenConfiguration (event: ConfigureFxTokenEvent): void {
   const address = event.params.fxToken;
   // Load token entity.
-  const entity = fxToken.load(address.toHex()) || createFxTokenEntity(address);
+  const entity = (fxToken.load(address.toHex()) || createFxTokenEntity(address)) as fxToken;
   // Set contract data.
   entity.isValid = !event.params.removed;
   entity.save();
@@ -72,7 +72,7 @@ export function handleCollateralTokenConfiguration (event: ConfigureCollateralTo
   const address = event.params.collateralToken;
   const handle = Handle.bind(event.address);
   // Load token entity.
-  const entity: CollateralToken = CollateralToken.load(address.toHex()) || createCollateralTokenEntity(address);
+  const entity = (CollateralToken.load(address.toHex()) || createCollateralTokenEntity(address)) as CollateralToken;
   // Set contract data.
   const collateralDetails = handle.getCollateralDetails(address);
   entity.liquidationFee = collateralDetails.liquidationFee;

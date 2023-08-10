@@ -16,7 +16,7 @@ export const concat = (a: ByteArray, b: ByteArray): ByteArray => {
   return out as ByteArray;
 };
 
-export const nonNull = <T>(value: T | null): T => {
+export function nonNull<T>(value: T | null): T {
   if (value == null || !value) {
     log.error("nonNull found a null value", []);
     throw new Error("nonNull found a null value");
