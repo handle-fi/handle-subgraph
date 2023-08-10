@@ -14,9 +14,9 @@ import {
   VaultCollateral,
   VaultRegistry,
   fxToken as fxTokenEntity,
-  CollateralToken
+  CollateralToken, fxToken
 } from "../../types/schema";
-import {concat} from "../../utils";
+import {concat, nonNull} from "../../utils";
 
 const ONE_ETH = BigInt.fromI32(10).pow(18);
 const ZERO = BigInt.fromString("0");
@@ -79,18 +79,20 @@ const calculateTokensRequiredForCrIncrease = (
 };
 
 export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
-  const fxTokenEthRate = fxTokenEntity.load(vault.fxToken).rate;
+  let entity = fxTokenEntity.load(vault.fxToken);
+  if (entity == null) return;
+  const fxTokenEthRate = entity.rate;
   if (fxTokenEthRate.isZero()) return;
   vault.debtAsEther = vault.debt.times(fxTokenEthRate).div(ONE_ETH);
   let collateralAsEther = ZERO;
   const collateralAmountsEther: Map<string, BigInt> = new Map<string, BigInt>();
   const collateralAddresses: string[] = vault.collateralAddresses;
   for (let i = 0; i < collateralAddresses.length; i++) {
-    const collateralToken = CollateralToken.load(collateralAddresses[i]);
+    const collateralToken = nonNull(CollateralToken.load(collateralAddresses[i]));
     const collateralEthRate = collateralToken.rate;
     const collateralUnit = BigInt.fromI32(10).pow(collateralToken.decimals as u8);
-    const vaultCollateral = VaultCollateral
-      .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
+    const vaultCollateral = nonNull(VaultCollateral
+      .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i]))));
     const thisCollateralAsEther = vaultCollateral.amount
       .times(collateralEthRate).div(collateralUnit);
     collateralAsEther = collateralAsEther.plus(thisCollateralAsEther);
@@ -103,9 +105,9 @@ export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
   let minimumRatio = ZERO;
   if (!vault.collateralAsEther.isZero())
     for (let i = 0; i < collateralAddresses.length; i++) {
-      const vaultCollateral = VaultCollateral
-        .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
-      const collateral = CollateralToken.load(vaultCollateral.address);
+      const vaultCollateral = nonNull(VaultCollateral
+        .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i]))));
+      const collateral = nonNull(CollateralToken.load(vaultCollateral.address));
       minimumRatio = minimumRatio.plus(
         collateral.mintCollateralRatio
           .times(ONE_ETH)
@@ -177,7 +179,7 @@ const getCreateVaultRegistry = (fxToken: Address): VaultRegistry => {
 
 export function handleDebtUpdate (event: UpdateDebtEvent): void {
   const vaultId = getVaultId(event.params.account, event.params.fxToken);
-  let vault = Vault.load(vaultId) || createVaultEntity(
+  let vault: Vault = Vault.load(vaultId) || createVaultEntity(
     vaultId,
     event.params.account,
     event.params.fxToken
@@ -203,7 +205,7 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   const fxToken = event.params.fxToken;
   const collateralAddress = event.params.collateralToken;
   const vaultId = getVaultId(account, fxToken);
-  let vault = Vault.load(vaultId) || createVaultEntity(
+  let vault: Vault = Vault.load(vaultId) || createVaultEntity(
     vaultId,
     account,
     fxToken
