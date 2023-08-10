@@ -50,11 +50,11 @@ export function handleStake(event: Stake): void {
   const amount = event.params.amount;
   // Get PCT contract.
   const poolId = getPoolId(event.address, collateralToken);
-  let pool = pctPool.load(poolId) || createPoolEntity(
+  let pool = (pctPool.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     collateralToken
-  );
+  )) as pctPool;
   const pct = PCT.bind(event.address);
   // Update values.
   pool.totalDeposits = pct.getTotalDeposits(collateralToken);
@@ -72,11 +72,11 @@ export function handleUnstake(event: Unstake): void {
   const amount = event.params.amount;
   // Get PCT contract.
   const poolId = getPoolId(event.address, collateralToken);
-  let pool = pctPool.load(poolId) || createPoolEntity(
+  let pool = (pctPool.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     collateralToken
-  );
+  )) as pctPool;
   const pct = PCT.bind(event.address);
   // Update values.
   pool.totalDeposits = pct.getTotalDeposits(collateralToken);
@@ -93,11 +93,11 @@ export function handleUserClaimInterest(event: ClaimInterest): void {
   const amount = event.params.amount;
   // Get PCT contract.
   const poolId = getPoolId(event.address, collateralToken);
-  let pool = pctPool.load(poolId) || createPoolEntity(
+  let pool = (pctPool.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     collateralToken
-  );
+  )) as pctPool;
   const pct = PCT.bind(event.address);
   // Update values.
   pool.totalClaimable = pct.getTotalAccruedInterest(collateralToken);
@@ -110,11 +110,11 @@ export function handleSetProtocolInterface(event: SetProtocolInterface): void {
   const collateralToken = event.params.collateralToken;
   // Get PCT contract.
   const poolId = getPoolId(event.address, collateralToken);
-  let pool = pctPool.load(poolId) || createPoolEntity(
+  let pool = (pctPool.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     collateralToken
-  );
+  )) as pctPool;
   // Update values.
   const hasExistingAddress = pool.interfaces.includes(interfaceAddress.toHex());
   const interfaces = pool.interfaces;
@@ -131,11 +131,11 @@ export function handleUnsetProtocolInterface(event: UnsetProtocolInterface): voi
   const collateralToken = event.params.collateralToken;
   // Get PCT contract.
   const poolId = getPoolId(event.address, collateralToken);
-  let pool = pctPool.load(poolId) || createPoolEntity(
+  let pool = (pctPool.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     collateralToken
-  );
+  )) as pctPool;
   // Update values.
   const hasExistingAddress = pool.interfaces.includes(interfaceAddress.toHex());
   const interfaces = pool.interfaces;
@@ -153,11 +153,11 @@ export function handleProtocolClaimInterest(event: ProtocolClaimInterest): void 
   const amount = event.params.amount;
   // Get PCT contract.
   const poolId = getPoolId(event.address, collateralToken);
-  let pool = pctPool.load(poolId) || createPoolEntity(
+  let pool = (pctPool.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     collateralToken
-  );
+  )) as pctPool;
   const pct = PCT.bind(event.address);
   // Update values.
   pool.protocolFee = pct.protocolFee();
@@ -172,11 +172,11 @@ export function handleProtocolReturnFunds(event: ProtocolReturnFunds): void {
   const amount = event.params.amount;
   // Get PCT contract.
   const poolId = getPoolId(event.address, collateralToken);
-  let pool = pctPool.load(poolId) || createPoolEntity(
+  let pool = (pctPool.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     collateralToken
-  );
+  )) as pctPool;
   const pct = PCT.bind(event.address);
   // Update values.
   pool.protocolFee = pct.protocolFee();
@@ -192,11 +192,11 @@ export function handleProtocolDepositFunds(event: ProtocolDepositFunds): void {
   const amount = event.params.amount;
   // Get PCT contract.
   const poolId = getPoolId(event.address, collateralToken);
-  let pool = pctPool.load(poolId) || createPoolEntity(
+  let pool = (pctPool.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     collateralToken
-  );
+  )) as pctPool;
   const pct = PCT.bind(event.address);
   // Update values.
   pool.protocolFee = pct.protocolFee();

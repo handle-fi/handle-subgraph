@@ -48,22 +48,22 @@ const createPoolEntity = (
 export function handleWithdraw(event: WithdrawEvent): void {
   const fxToken = event.params.token;
   const poolId = getPoolId(event.address, fxToken);
-  let pool = fxKeeperPoolSchema.load(poolId) || createPoolEntity(
+  let pool = (fxKeeperPoolSchema.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     fxToken
-  );
+  )) as fxKeeperPoolSchema;
   pool.save();
 }
 
 export function handleLiquidate(event: LiquidateEvent): void {
   const fxToken = event.params.token;
   const poolId = getPoolId(event.address, fxToken);
-  let pool = fxKeeperPoolSchema.load(poolId) || createPoolEntity(
+  let pool = (fxKeeperPoolSchema.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     fxToken
-  );
+  )) as fxKeeperPoolSchema;
   pool.liquidationsExecuted = pool.liquidationsExecuted.plus(BigInt.fromString("1"));
   pool.save();
 }
@@ -71,11 +71,11 @@ export function handleLiquidate(event: LiquidateEvent): void {
 export function handleStake(event: StakeEvent): void {
   const fxToken = event.params.token;
   const poolId = getPoolId(event.address, fxToken);
-  let pool = fxKeeperPoolSchema.load(poolId) || createPoolEntity(
+  let pool = (fxKeeperPoolSchema.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     fxToken
-  );
+  )) as fxKeeperPoolSchema;
   pool.totalDeposits = pool.totalDeposits.plus(event.params.amount);
   pool.save();
 }
@@ -83,11 +83,11 @@ export function handleStake(event: StakeEvent): void {
 export function handleUnstake(event: UnstakeEvent): void {
   const fxToken = event.params.token;
   const poolId = getPoolId(event.address, fxToken);
-  let pool = fxKeeperPoolSchema.load(poolId) || createPoolEntity(
+  let pool = (fxKeeperPoolSchema.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     fxToken
-  );
+  )) as fxKeeperPoolSchema;
   pool.totalDeposits = pool.totalDeposits.minus(event.params.amount);
   pool.save();
 }

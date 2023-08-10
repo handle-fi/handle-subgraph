@@ -30,15 +30,15 @@ export function handleAnswerUpdated(event: AnswerUpdated): void {
   // In that case, all vaults/tokens must be updated due to indirect quoting.
   const aggregatorAddress = event.address;
   const token = aggregatorToToken(aggregatorAddress);
-  const tokensToUpdate: Address[] = token != null
-    ? [token!]
+  const tokensToUpdate: Address[] = !token.equals(Address.zero())
+    ? [token]
     : getTokens();
   if (tokensToUpdate.length > 1) {
     // ETH/USD update
     // The fxUSD rate, instead of 1, is actually the ETH/USD price.
     // All other ChainlinkRates are the token value in USD.
-    const chainlinkRate = ChainlinkRate.load(fxUsdAddress.toHex())
-      || new ChainlinkRate(fxUsdAddress.toHex());
+    const chainlinkRate = (ChainlinkRate.load(fxUsdAddress.toHex())
+      || new ChainlinkRate(fxUsdAddress.toHex())) as ChainlinkRate;
     chainlinkRate.value = event.params.current;
     chainlinkRate.save();
   } else {
@@ -53,8 +53,8 @@ export function handleAnswerUpdated(event: AnswerUpdated): void {
       // This happens if the ETH/USD price isn't available.
       return;
     }
-    const chainlinkRate = ChainlinkRate.load(tokenAddress.toHex())
-      || new ChainlinkRate(tokenAddress.toHex());
+    const chainlinkRate = (ChainlinkRate.load(tokenAddress.toHex())
+      || new ChainlinkRate(tokenAddress.toHex())) as ChainlinkRate;
     chainlinkRate.value = aggregatorValue as BigInt;
     chainlinkRate.save();
   }
