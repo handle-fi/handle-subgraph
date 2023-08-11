@@ -1,8 +1,8 @@
 ﻿import {
   BigInt,
-  ByteArray,
   Address,
   crypto,
+  Bytes,
 } from '@graphprotocol/graph-ts';
 import {
   Handle,
@@ -16,7 +16,7 @@ import {
   fxToken as fxTokenEntity,
   CollateralToken, fxToken
 } from "../../types/schema";
-import {concat, nonNull} from "../../utils";
+import {nonNull} from "../../utils";
 
 const ONE_ETH = BigInt.fromI32(10).pow(18);
 const ZERO = BigInt.fromString("0");
@@ -24,20 +24,16 @@ const MINIMUM_LIQUIDATION_RATIO = ONE_ETH
   .times(BigInt.fromI32(11)).div(BigInt.fromI32(10));
 
 export const getVaultId = (account: Address, fxToken: Address): string => (
-  crypto.keccak256(concat(
-    ByteArray.fromHexString(account.toHex()),
-    ByteArray.fromHexString(fxToken.toHex())
-  )).toHex()
+  crypto.keccak256(account.concat(fxToken)).toHex()
 );
 
 const getVaultCollateralId = (
   vaultId: string,
   collateralToken: Address
 ): string => {
-  return crypto.keccak256(concat(
-    ByteArray.fromHexString(vaultId),
-    ByteArray.fromHexString(collateralToken.toHex())
-  )).toHex()
+  return crypto.keccak256(
+    collateralToken.concat(Bytes.fromHexString(vaultId))
+  ).toHex()
 };
 
 const createVaultEntity = (
@@ -225,7 +221,7 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   vault.save();
   // Update vault collateral entity.
   const vaultCollateral = getCreateVaultCollateral(
-    vault as Vault,
+    vault,
     collateralAddress
   );
   vaultCollateral.amount = collateralBalance;

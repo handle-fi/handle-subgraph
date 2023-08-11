@@ -16,13 +16,9 @@ import {
   ProtocolDepositFunds,
   PCT,
 } from "../types/PCT/PCT";
-import { concat } from "../utils";
 
 const getPoolId = (address: Address, collateralToken: Address): string => (
-  crypto.keccak256(concat(
-    ByteArray.fromHexString(address.toHex()),
-    ByteArray.fromHexString(collateralToken.toHex())
-  )).toHex()
+  crypto.keccak256(address.concat(collateralToken)).toHex()
 );
 
 const createPoolEntity = (

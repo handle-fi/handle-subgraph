@@ -2,7 +2,7 @@
   BigInt,
   ByteArray,
   Address,
-  crypto,
+  crypto, Bytes,
 } from '@graphprotocol/graph-ts';
 import {
   fxKeeperPool as fxKeeperPoolSchema,
@@ -13,23 +13,18 @@ import {
   Withdraw as WithdrawEvent,
   Liquidate as LiquidateEvent,
 } from "../types/fxKeeperPool/fxKeeperPool";
-import { concat } from "../utils";
 
 const getPoolId = (address: Address, fxToken: Address): string => (
-  crypto.keccak256(concat(
-    ByteArray.fromHexString(address.toHex()),
-    ByteArray.fromHexString(fxToken.toHex())
-  )).toHex()
+  crypto.keccak256(address.concat(fxToken)).toHex()
 );
 
 const getPoolCollateralId = (
   poolId: string,
   collateralToken: Address
 ): string => {
-  return crypto.keccak256(concat(
-    ByteArray.fromHexString(poolId),
-    ByteArray.fromHexString(collateralToken.toHex())
-  )).toHex()
+  return crypto.keccak256(
+    collateralToken.concat(Bytes.fromHexString(poolId))
+  ).toHex()
 };
 
 const createPoolEntity = (
