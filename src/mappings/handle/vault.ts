@@ -1,8 +1,8 @@
 ﻿import {
   BigInt,
-  ByteArray,
   Address,
   crypto,
+  Bytes,
 } from '@graphprotocol/graph-ts';
 import {
   Handle,
@@ -14,9 +14,9 @@ import {
   VaultCollateral,
   VaultRegistry,
   fxToken as fxTokenEntity,
-  CollateralToken
+  CollateralToken, fxToken
 } from "../../types/schema";
-import {concat} from "../../utils";
+import {nonNull} from "../../utils";
 
 const ONE_ETH = BigInt.fromI32(10).pow(18);
 const ZERO = BigInt.fromString("0");
@@ -24,20 +24,16 @@ const MINIMUM_LIQUIDATION_RATIO = ONE_ETH
   .times(BigInt.fromI32(11)).div(BigInt.fromI32(10));
 
 export const getVaultId = (account: Address, fxToken: Address): string => (
-  crypto.keccak256(concat(
-    ByteArray.fromHexString(account.toHex()),
-    ByteArray.fromHexString(fxToken.toHex())
-  )).toHex()
+  crypto.keccak256(account.concat(fxToken)).toHex()
 );
 
 const getVaultCollateralId = (
   vaultId: string,
   collateralToken: Address
 ): string => {
-  return crypto.keccak256(concat(
-    ByteArray.fromHexString(vaultId),
-    ByteArray.fromHexString(collateralToken.toHex())
-  )).toHex()
+  return crypto.keccak256(
+    collateralToken.concat(Bytes.fromHexString(vaultId))
+  ).toHex()
 };
 
 const createVaultEntity = (
@@ -79,18 +75,20 @@ const calculateTokensRequiredForCrIncrease = (
 };
 
 export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
-  const fxTokenEthRate = fxTokenEntity.load(vault.fxToken).rate;
+  let entity = fxTokenEntity.load(vault.fxToken);
+  if (entity == null) return;
+  const fxTokenEthRate = entity.rate;
   if (fxTokenEthRate.isZero()) return;
   vault.debtAsEther = vault.debt.times(fxTokenEthRate).div(ONE_ETH);
   let collateralAsEther = ZERO;
   const collateralAmountsEther: Map<string, BigInt> = new Map<string, BigInt>();
   const collateralAddresses: string[] = vault.collateralAddresses;
   for (let i = 0; i < collateralAddresses.length; i++) {
-    const collateralToken = CollateralToken.load(collateralAddresses[i]);
+    const collateralToken = nonNull(CollateralToken.load(collateralAddresses[i])) as CollateralToken;
     const collateralEthRate = collateralToken.rate;
     const collateralUnit = BigInt.fromI32(10).pow(collateralToken.decimals as u8);
-    const vaultCollateral = VaultCollateral
-      .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
+    const vaultCollateral = nonNull(VaultCollateral
+      .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])))) as VaultCollateral;
     const thisCollateralAsEther = vaultCollateral.amount
       .times(collateralEthRate).div(collateralUnit);
     collateralAsEther = collateralAsEther.plus(thisCollateralAsEther);
@@ -103,9 +101,9 @@ export const updateVaultPriceDerivedProperties = (vault: Vault): void => {
   let minimumRatio = ZERO;
   if (!vault.collateralAsEther.isZero())
     for (let i = 0; i < collateralAddresses.length; i++) {
-      const vaultCollateral = VaultCollateral
-        .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])));
-      const collateral = CollateralToken.load(vaultCollateral.address);
+      const vaultCollateral = nonNull(VaultCollateral
+        .load(getVaultCollateralId(vault.id, Address.fromString(collateralAddresses[i])))) as VaultCollateral;
+      const collateral = nonNull(CollateralToken.load(vaultCollateral.address)) as CollateralToken;
       minimumRatio = minimumRatio.plus(
         collateral.mintCollateralRatio
           .times(ONE_ETH)
@@ -158,7 +156,7 @@ const getCreateVaultCollateral = (
   const vaultCollateralId = getVaultCollateralId(vault.id, collateralToken);
   let vaultCollateral = VaultCollateral.load(vaultCollateralId);
   if (vaultCollateral == null) {
-    vaultCollateral = new VaultCollateral(vaultCollateralId);
+    vaultCollateral = new VaultCollateral(vaultCollateralId) as VaultCollateral;
     vaultCollateral.vault = vault.id;
     vaultCollateral.address = collateralToken.toHex();
     vaultCollateral.amount = ZERO;
@@ -177,11 +175,11 @@ const getCreateVaultRegistry = (fxToken: Address): VaultRegistry => {
 
 export function handleDebtUpdate (event: UpdateDebtEvent): void {
   const vaultId = getVaultId(event.params.account, event.params.fxToken);
-  let vault = Vault.load(vaultId) || createVaultEntity(
+  let vault = (Vault.load(vaultId) || createVaultEntity(
     vaultId,
     event.params.account,
     event.params.fxToken
-  );
+  )) as Vault;
   const handleContract = Handle.bind(event.address);
   const tryDebt = handleContract
     .try_getDebt(event.params.account, event.params.fxToken);
@@ -203,11 +201,11 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   const fxToken = event.params.fxToken;
   const collateralAddress = event.params.collateralToken;
   const vaultId = getVaultId(account, fxToken);
-  let vault = Vault.load(vaultId) || createVaultEntity(
+  let vault = (Vault.load(vaultId) || createVaultEntity(
     vaultId,
     account,
     fxToken
-  );
+  )) as Vault;
   const handleContract = Handle.bind(event.address);
   const collateralBalance = handleContract
     .getCollateralBalance(account, collateralAddress, fxToken);
@@ -223,7 +221,7 @@ export function handleCollateralUpdate (event: UpdateCollateralEvent): void {
   vault.save();
   // Update vault collateral entity.
   const vaultCollateral = getCreateVaultCollateral(
-    vault as Vault,
+    vault,
     collateralAddress
   );
   vaultCollateral.amount = collateralBalance;

@@ -2,7 +2,7 @@
   BigInt,
   ByteArray,
   Address,
-  crypto,
+  crypto, Bytes,
 } from '@graphprotocol/graph-ts';
 import {
   fxKeeperPool as fxKeeperPoolSchema,
@@ -13,23 +13,18 @@ import {
   Withdraw as WithdrawEvent,
   Liquidate as LiquidateEvent,
 } from "../types/fxKeeperPool/fxKeeperPool";
-import { concat } from "../utils";
 
 const getPoolId = (address: Address, fxToken: Address): string => (
-  crypto.keccak256(concat(
-    ByteArray.fromHexString(address.toHex()),
-    ByteArray.fromHexString(fxToken.toHex())
-  )).toHex()
+  crypto.keccak256(address.concat(fxToken)).toHex()
 );
 
 const getPoolCollateralId = (
   poolId: string,
   collateralToken: Address
 ): string => {
-  return crypto.keccak256(concat(
-    ByteArray.fromHexString(poolId),
-    ByteArray.fromHexString(collateralToken.toHex())
-  )).toHex()
+  return crypto.keccak256(
+    collateralToken.concat(Bytes.fromHexString(poolId))
+  ).toHex()
 };
 
 const createPoolEntity = (
@@ -48,22 +43,22 @@ const createPoolEntity = (
 export function handleWithdraw(event: WithdrawEvent): void {
   const fxToken = event.params.token;
   const poolId = getPoolId(event.address, fxToken);
-  let pool = fxKeeperPoolSchema.load(poolId) || createPoolEntity(
+  let pool = (fxKeeperPoolSchema.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     fxToken
-  );
+  )) as fxKeeperPoolSchema;
   pool.save();
 }
 
 export function handleLiquidate(event: LiquidateEvent): void {
   const fxToken = event.params.token;
   const poolId = getPoolId(event.address, fxToken);
-  let pool = fxKeeperPoolSchema.load(poolId) || createPoolEntity(
+  let pool = (fxKeeperPoolSchema.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     fxToken
-  );
+  )) as fxKeeperPoolSchema;
   pool.liquidationsExecuted = pool.liquidationsExecuted.plus(BigInt.fromString("1"));
   pool.save();
 }
@@ -71,11 +66,11 @@ export function handleLiquidate(event: LiquidateEvent): void {
 export function handleStake(event: StakeEvent): void {
   const fxToken = event.params.token;
   const poolId = getPoolId(event.address, fxToken);
-  let pool = fxKeeperPoolSchema.load(poolId) || createPoolEntity(
+  let pool = (fxKeeperPoolSchema.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     fxToken
-  );
+  )) as fxKeeperPoolSchema;
   pool.totalDeposits = pool.totalDeposits.plus(event.params.amount);
   pool.save();
 }
@@ -83,11 +78,11 @@ export function handleStake(event: StakeEvent): void {
 export function handleUnstake(event: UnstakeEvent): void {
   const fxToken = event.params.token;
   const poolId = getPoolId(event.address, fxToken);
-  let pool = fxKeeperPoolSchema.load(poolId) || createPoolEntity(
+  let pool = (fxKeeperPoolSchema.load(poolId) || createPoolEntity(
     poolId,
     event.address,
     fxToken
-  );
+  )) as fxKeeperPoolSchema;
   pool.totalDeposits = pool.totalDeposits.minus(event.params.amount);
   pool.save();
 }
